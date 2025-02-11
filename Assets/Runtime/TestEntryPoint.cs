@@ -1,42 +1,51 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using R3;
+using Runtime.Behaviour;
+using Runtime.Controller;
+using Runtime.Entity;
 using Runtime.Input;
-using UnityEngine;
+using Runtime.Presenter;
+using Runtime.Utility;
 using VContainer;
 using VContainer.Unity;
 
 namespace Runtime
 {
-    public class TestEntryPoint : IAsyncStartable, ITickable, IDisposable
+    public class TestEntryPoint : IAsyncStartable, ITickable
     {
-        private readonly CompositeDisposable _disposables = new();
+        private readonly DevilBehaviour _devilBehaviourPrefab;
+        private readonly DevilPresenter _devilPresenter;
+        private readonly PlayerDevilController _playerDevilController;
         private readonly PlayerInputSubject _playerInput;
+        private readonly Session _session;
 
         private bool _readyToMove;
 
         [Inject]
-        public TestEntryPoint(PlayerInputSubject playerInput)
+        public TestEntryPoint(
+            DevilBehaviour devilBehaviourPrefab,
+            DevilPresenter devilPresenter,
+            PlayerDevilController playerDevilController,
+            PlayerInputSubject playerInput,
+            Session session)
         {
+            _devilBehaviourPrefab = devilBehaviourPrefab;
+            _devilPresenter = devilPresenter;
+            _playerDevilController = playerDevilController;
             _playerInput = playerInput;
+            _session = session;
         }
 
-        public UniTask StartAsync(CancellationToken cancellation)
+        public async UniTask StartAsync(CancellationToken cancellation)
         {
-            _playerInput.Move.OnBegan
-                .Subscribe(c => Debug.Log(c.ReadValue<Vector2>()))
-                .AddTo(_disposables);
+            var playerDevilBehaviour = await Instantiator.Create(_devilBehaviourPrefab)
+                .InstantiateAsync(cancellation).First;
+
+            _devilPresenter.Bind(_session.Player, playerDevilBehaviour);
+            _playerDevilController.Initialize(_session.Player);
 
             _playerInput.Enable();
             _readyToMove = true;
-
-            return UniTask.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _disposables.Dispose();
         }
 
         public void Tick()
