@@ -1,8 +1,9 @@
+using System;
 using VContainer;
 
 namespace Runtime.Entity
 {
-    public class Session
+    public class Session : IDisposable
     {
         [Inject]
         public Session()
@@ -10,6 +11,11 @@ namespace Runtime.Entity
         }
 
         public Devil Player { get; } = new();
+
+        public void Dispose()
+        {
+            Player.Dispose();
+        }
 
         public void Tick(float deltaTime)
         {
