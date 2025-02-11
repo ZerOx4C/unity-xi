@@ -2,7 +2,7 @@ using System;
 using R3;
 using Runtime.Behaviour;
 using Runtime.Entity;
-using UnityEngine;
+using Runtime.Utility;
 using VContainer;
 
 namespace Runtime.Presenter
@@ -24,11 +24,7 @@ namespace Runtime.Presenter
         public void Bind(Devil devil, DevilBehaviour behaviour)
         {
             devil.Direction.CombineLatest(devil.Speed, (direction, speed) => (direction, speed))
-                .Subscribe(v =>
-                {
-                    var velocity = v.speed * v.direction.normalized;
-                    behaviour.SetVelocity(new Vector3(-velocity.y, 0, velocity.x));
-                })
+                .Subscribe(v => behaviour.SetVelocity(MiscUtility.Convert(v.speed * v.direction.normalized)))
                 .AddTo(_disposables);
         }
     }

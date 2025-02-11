@@ -11,16 +11,19 @@ namespace Runtime
     public class TestSceneLifetimeScope : LifetimeScope
     {
         public DevilBehaviour devilPrefab;
+        public DiceBehaviour dicePrefab;
 
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
 
             builder.RegisterInstance(devilPrefab);
+            builder.RegisterInstance(dicePrefab);
 
             builder.Register<Session>(Lifetime.Singleton);
 
             builder.Register<DevilPresenter>(Lifetime.Singleton);
+            builder.Register<DicePresenter>(Lifetime.Singleton);
             builder.Register<PlayerInputSubject>(Lifetime.Singleton)
                 .As<IPlayerInputObservable>()
                 .AsSelf();
