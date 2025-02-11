@@ -23,8 +23,12 @@ namespace Runtime.Presenter
 
         public void Bind(Devil devil, DevilBehaviour behaviour)
         {
-            devil.MoveDirection
-                .Subscribe(v => Debug.Log($"move: {v}"))
+            devil.Direction.CombineLatest(devil.Speed, (direction, speed) => (direction, speed))
+                .Subscribe(v =>
+                {
+                    var velocity = v.speed * v.direction.normalized;
+                    behaviour.SetVelocity(new Vector3(-velocity.y, 0, velocity.x));
+                })
                 .AddTo(_disposables);
         }
     }

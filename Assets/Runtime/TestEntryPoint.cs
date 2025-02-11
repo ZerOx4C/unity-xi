@@ -6,6 +6,7 @@ using Runtime.Entity;
 using Runtime.Input;
 using Runtime.Presenter;
 using Runtime.Utility;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -56,6 +57,7 @@ namespace Runtime
             }
 
             _playerInput.Tick();
+            _session.Tick(Time.deltaTime);
         }
     }
 }

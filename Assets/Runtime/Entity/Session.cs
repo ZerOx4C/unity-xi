@@ -10,5 +10,10 @@ namespace Runtime.Entity
         }
 
         public Devil Player { get; } = new();
+
+        public void Tick(float deltaTime)
+        {
+            Player.Tick(deltaTime);
+        }
     }
 }

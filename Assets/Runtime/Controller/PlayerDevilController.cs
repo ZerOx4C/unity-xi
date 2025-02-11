@@ -27,12 +27,16 @@ namespace Runtime.Controller
         {
             _disposables.Clear();
 
+            _playerInput.Move.OnBegan
+                .Subscribe(_ => devil.DesiredSpeed = 5)
+                .AddTo(_disposables);
+
             _playerInput.Move.OnProgress
-                .Subscribe(ctx => devil.MoveDirection.Value = ctx.ReadValue<Vector2>())
+                .Subscribe(ctx => devil.DesiredDirection = ctx.ReadValue<Vector2>())
                 .AddTo(_disposables);
 
             _playerInput.Move.OnEnded
-                .Subscribe(_ => devil.MoveDirection.Value = Vector2.zero)
+                .Subscribe(_ => devil.DesiredSpeed = 0)
                 .AddTo(_disposables);
         }
     }
