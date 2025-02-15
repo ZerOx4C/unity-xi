@@ -48,8 +48,8 @@ namespace Runtime
         public async UniTask StartAsync(CancellationToken cancellation)
         {
             var diceInitializationTask = _diceInitialization.InitializeAsync(cancellation);
-            var playerInitializationTask = _playerInitialization.InitializeAsync(cancellation);
-            var floorInitializationTask = _floorInitialization.InitializeAsync(cancellation);
+            var playerInitializationTask = _playerInitialization.PerformAsync(cancellation);
+            var floorInitializationTask = _floorInitialization.PerformAsync(cancellation);
 
             await diceInitializationTask;
 

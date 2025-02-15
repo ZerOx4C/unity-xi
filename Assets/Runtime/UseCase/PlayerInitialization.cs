@@ -33,7 +33,7 @@ namespace Runtime.UseCase
             _session = session;
         }
 
-        public async UniTask InitializeAsync(CancellationToken cancellation)
+        public async UniTask PerformAsync(CancellationToken cancellation)
         {
             var playerInstantiateTask = Instantiator.Create(_devilBehaviourPrefab)
                 .InstantiateAsync(cancellation).First;
