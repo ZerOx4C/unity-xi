@@ -82,6 +82,12 @@ namespace Runtime
                 })
                 .AddTo(_disposables);
 
+            _session.Player.Position
+                .Select(Vector2Int.RoundToInt)
+                .DistinctUntilChanged()
+                .Subscribe(v => Debug.Log($"position = {v}"))
+                .AddTo(_disposables);
+
             _transformConverter.SetFieldSize(_session.Field.Width, _session.Field.Height);
 
             var floorBehaviour = await floorInstantiateTask;

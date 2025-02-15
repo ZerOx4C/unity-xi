@@ -1,5 +1,6 @@
 using System;
 using R3;
+using R3.Triggers;
 using Runtime.Behaviour;
 using Runtime.Entity;
 using Runtime.Utility;
@@ -30,6 +31,14 @@ namespace Runtime.Presenter
                 {
                     var velocity = v.speed * _transformConverter.ToView(v.direction).normalized;
                     behaviour.SetVelocity(velocity);
+                })
+                .AddTo(_disposables);
+
+            behaviour.UpdateAsObservable()
+                .Subscribe(_ =>
+                {
+                    var position = _transformConverter.ToEntityPosition(behaviour.transform.position);
+                    devil.Position.Value = position;
                 })
                 .AddTo(_disposables);
         }
