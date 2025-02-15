@@ -41,10 +41,13 @@ namespace Runtime
             builder.Register<DicePresenter>(Lifetime.Singleton);
 
             // UseCase
+            builder.Register<DiceFinalization>(Lifetime.Singleton);
+            builder.Register<DiceInitialization>(Lifetime.Singleton);
             builder.Register<FloorInitialization>(Lifetime.Singleton);
             builder.Register<PlayerInitialization>(Lifetime.Singleton);
 
             // Utility
+            builder.Register<DiceBehaviourRepository>(Lifetime.Singleton);
             builder.Register<TransformConverter>(Lifetime.Singleton)
                 .As<ITransformConverter>()
                 .AsSelf();

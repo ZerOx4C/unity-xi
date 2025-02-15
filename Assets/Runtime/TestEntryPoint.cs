@@ -2,10 +2,8 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
-using Runtime.Behaviour;
 using Runtime.Entity;
 using Runtime.Input;
-using Runtime.Presenter;
 using Runtime.UseCase;
 using Runtime.Utility;
 using UnityEngine;
@@ -17,8 +15,8 @@ namespace Runtime
 {
     public class TestEntryPoint : IAsyncStartable, ITickable, IDisposable
     {
-        private readonly DiceBehaviour _diceBehaviourPrefab;
-        private readonly DicePresenter _dicePresenter;
+        private readonly DiceFinalization _diceFinalization;
+        private readonly DiceInitialization _diceInitialization;
         private readonly CompositeDisposable _disposables = new();
         private readonly FloorInitialization _floorInitialization;
         private readonly PlayerInitialization _playerInitialization;
@@ -30,16 +28,16 @@ namespace Runtime
 
         [Inject]
         public TestEntryPoint(
-            DiceBehaviour diceBehaviourPrefab,
-            DicePresenter dicePresenter,
+            DiceFinalization diceFinalization,
+            DiceInitialization diceInitialization,
             FloorInitialization floorInitialization,
             PlayerInitialization playerInitialization,
             PlayerInputSubject playerInput,
             Session session,
             TransformConverter transformConverter)
         {
-            _diceBehaviourPrefab = diceBehaviourPrefab;
-            _dicePresenter = dicePresenter;
+            _diceFinalization = diceFinalization;
+            _diceInitialization = diceInitialization;
             _floorInitialization = floorInitialization;
             _playerInitialization = playerInitialization;
             _playerInput = playerInput;
@@ -49,28 +47,18 @@ namespace Runtime
 
         public async UniTask StartAsync(CancellationToken cancellation)
         {
+            var diceInitializationTask = _diceInitialization.InitializeAsync(cancellation);
             var playerInitializationTask = _playerInitialization.InitializeAsync(cancellation);
             var floorInitializationTask = _floorInitialization.InitializeAsync(cancellation);
 
+            await diceInitializationTask;
+
             _session.Field.OnDiceAdd
-                .SubscribeAwait(async (dice, token) =>
-                {
-                    // TODO: 引数でくれないかなぁ
-                    var position = _session.Field.GetDicePosition(dice);
-
-                    var diceBehaviour = await Instantiator.Create(_diceBehaviourPrefab)
-                        .SetTransforms(_transformConverter.ToViewPosition(position), Quaternion.identity)
-                        .InstantiateAsync(token).First;
-
-                    _dicePresenter.Bind(dice, diceBehaviour);
-                })
+                .SubscribeAwait((dice, token) => _diceInitialization.PerformAsync(dice, token))
                 .AddTo(_disposables);
 
             _session.Field.OnDiceRemove
-                .Subscribe(dice =>
-                {
-                    // TODO: どうやって削除しようかな
-                })
+                .SubscribeAwait((dice, token) => _diceFinalization.PerformAsync(dice, token))
                 .AddTo(_disposables);
 
             _session.Player.Position
