@@ -3,6 +3,7 @@ using Runtime.Controller;
 using Runtime.Entity;
 using Runtime.Input;
 using Runtime.Presenter;
+using Runtime.UseCase;
 using Runtime.Utility;
 using VContainer;
 using VContainer.Unity;
@@ -25,6 +26,7 @@ namespace Runtime
 
             builder.Register<Session>(Lifetime.Singleton);
 
+            builder.Register<PlayerInitialization>(Lifetime.Singleton);
             builder.Register<TransformConverter>(Lifetime.Singleton)
                 .As<ITransformConverter>()
                 .AsSelf();

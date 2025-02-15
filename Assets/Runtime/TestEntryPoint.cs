@@ -3,10 +3,10 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
 using Runtime.Behaviour;
-using Runtime.Controller;
 using Runtime.Entity;
 using Runtime.Input;
 using Runtime.Presenter;
+using Runtime.UseCase;
 using Runtime.Utility;
 using UnityEngine;
 using VContainer;
@@ -17,13 +17,11 @@ namespace Runtime
 {
     public class TestEntryPoint : IAsyncStartable, ITickable, IDisposable
     {
-        private readonly DevilBehaviour _devilBehaviourPrefab;
-        private readonly DevilPresenter _devilPresenter;
         private readonly DiceBehaviour _diceBehaviourPrefab;
         private readonly DicePresenter _dicePresenter;
         private readonly CompositeDisposable _disposables = new();
         private readonly FloorBehaviour _floorBehaviourPrefab;
-        private readonly PlayerDevilController _playerDevilController;
+        private readonly PlayerInitialization _playerInitialization;
         private readonly PlayerInputSubject _playerInput;
         private readonly Session _session;
         private readonly TransformConverter _transformConverter;
@@ -32,22 +30,18 @@ namespace Runtime
 
         [Inject]
         public TestEntryPoint(
-            DevilBehaviour devilBehaviourPrefab,
-            DevilPresenter devilPresenter,
             DiceBehaviour diceBehaviourPrefab,
             DicePresenter dicePresenter,
             FloorBehaviour floorBehaviourPrefab,
-            PlayerDevilController playerDevilController,
+            PlayerInitialization playerInitialization,
             PlayerInputSubject playerInput,
             Session session,
             TransformConverter transformConverter)
         {
-            _devilBehaviourPrefab = devilBehaviourPrefab;
-            _devilPresenter = devilPresenter;
             _diceBehaviourPrefab = diceBehaviourPrefab;
             _dicePresenter = dicePresenter;
             _floorBehaviourPrefab = floorBehaviourPrefab;
-            _playerDevilController = playerDevilController;
+            _playerInitialization = playerInitialization;
             _playerInput = playerInput;
             _session = session;
             _transformConverter = transformConverter;
@@ -55,10 +49,9 @@ namespace Runtime
 
         public async UniTask StartAsync(CancellationToken cancellation)
         {
-            var floorInstantiateTask = Instantiator.Create(_floorBehaviourPrefab)
-                .InstantiateAsync(cancellation).First;
+            var playerInitializationTask = _playerInitialization.InitializeAsync(cancellation);
 
-            var playerInstantiateTask = Instantiator.Create(_devilBehaviourPrefab)
+            var floorInstantiateTask = Instantiator.Create(_floorBehaviourPrefab)
                 .InstantiateAsync(cancellation).First;
 
             _session.Field.OnDiceAdd
@@ -99,11 +92,8 @@ namespace Runtime
                 },
                 cancellation);
 
-            var playerDevilBehaviour = await playerInstantiateTask;
-            _devilPresenter.Bind(_session.Player, playerDevilBehaviour);
-            _playerDevilController.Initialize(_session.Player);
+            await playerInitializationTask;
 
-            _playerInput.Enable();
             _readyToMove = true;
 
             var fieldBounds = new RectInt(0, 0, _session.Field.Width, _session.Field.Height);
