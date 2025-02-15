@@ -4,7 +4,9 @@ namespace Runtime.Utility
 {
     public interface ITransformConverter
     {
-        Vector2Int FromView(Vector3 viewPosition);
-        Vector3 ToView(Vector2Int entityPosition);
+        Vector2 ToEntityPosition(Vector3 viewPosition);
+        Vector3 ToViewPosition(Vector2 entityPosition);
+        Vector3 ToView(Vector2 entityDirection);
+        Vector2 ToEntity(Vector3 viewDirection);
     }
 }

@@ -10,10 +10,12 @@ namespace Runtime.Presenter
     public class DevilPresenter : IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
+        private readonly ITransformConverter _transformConverter;
 
         [Inject]
-        public DevilPresenter()
+        public DevilPresenter(ITransformConverter transformConverter)
         {
+            _transformConverter = transformConverter;
         }
 
         public void Dispose()
@@ -24,7 +26,11 @@ namespace Runtime.Presenter
         public void Bind(Devil devil, DevilBehaviour behaviour)
         {
             devil.Direction.CombineLatest(devil.Speed, (direction, speed) => (direction, speed))
-                .Subscribe(v => behaviour.SetVelocity(MiscUtility.Convert(v.speed * v.direction.normalized)))
+                .Subscribe(v =>
+                {
+                    var velocity = v.speed * _transformConverter.ToView(v.direction).normalized;
+                    behaviour.SetVelocity(velocity);
+                })
                 .AddTo(_disposables);
         }
     }

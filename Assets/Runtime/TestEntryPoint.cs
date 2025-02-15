@@ -68,7 +68,7 @@ namespace Runtime
                     var position = _session.Field.GetDicePosition(dice);
 
                     var diceBehaviour = await Instantiator.Create(_diceBehaviourPrefab)
-                        .SetTransforms(_transformConverter.ToView(position), Quaternion.identity)
+                        .SetTransforms(_transformConverter.ToViewPosition(position), Quaternion.identity)
                         .InstantiateAsync(token).First;
 
                     _dicePresenter.Bind(dice, diceBehaviour);
@@ -107,6 +107,31 @@ namespace Runtime
                 {
                     _session.Field.AddDice(new Dice(), position);
                 }
+            }
+
+            await UniTask.WaitForSeconds(1f, cancellationToken: cancellation);
+
+            while (true)
+            {
+                var position = new Vector2Int(
+                    Random.Range(0, _session.Field.Width),
+                    Random.Range(0, _session.Field.Height));
+
+                if (!_session.Field.TryGetDice(position, out var dice))
+                {
+                    continue;
+                }
+
+                var direction = Random.Range(0, 4) switch
+                {
+                    0 => Vector2Int.left,
+                    1 => Vector2Int.right,
+                    2 => Vector2Int.up,
+                    3 => Vector2Int.down,
+                    _ => Vector2Int.zero,
+                };
+
+                await _session.Field.TryPushDiceAsync(dice, direction, cancellation);
             }
         }
 

@@ -11,10 +11,12 @@ namespace Runtime.Presenter
     public class DicePresenter : IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
+        private readonly ITransformConverter _transformConverter;
 
         [Inject]
-        public DicePresenter()
+        public DicePresenter(ITransformConverter transformConverter)
         {
+            _transformConverter = transformConverter;
         }
 
         public void Dispose()
@@ -28,7 +30,8 @@ namespace Runtime.Presenter
                 .Where(dir => dir != Vector2.zero)
                 .SubscribeAwait(async (dir, token) =>
                 {
-                    await behaviour.PerformPush(MiscUtility.Convert(dir), token);
+                    var direction = _transformConverter.ToView(dir);
+                    await behaviour.PerformPush(direction, token);
                     dice.EndPush();
                 })
                 .AddTo(_disposables);

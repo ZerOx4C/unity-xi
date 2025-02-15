@@ -5,33 +5,38 @@ namespace Runtime.Utility
 {
     public class TransformConverter : ITransformConverter
     {
-        private int _fieldHeight;
-        private int _fieldWidth;
+        private Vector2 _toEntityOffset;
+        private Vector3 _toViewOffset;
 
         [Inject]
         public TransformConverter()
         {
         }
 
-        public Vector2Int FromView(Vector3 viewPosition)
+        public Vector3 ToViewPosition(Vector2 entityPosition)
         {
-            return new Vector2Int(
-                (int)(viewPosition.x + (_fieldWidth - 1) * 0.5f),
-                (int)(viewPosition.z + (_fieldHeight - 1) * 0.5f));
+            return ToView(entityPosition) + _toViewOffset;
         }
 
-        public Vector3 ToView(Vector2Int entityPosition)
+        public Vector2 ToEntityPosition(Vector3 viewPosition)
         {
-            return new Vector3(
-                entityPosition.x - (_fieldWidth - 1) * 0.5f,
-                0,
-                entityPosition.y - (_fieldHeight - 1) * 0.5f);
+            return ToEntity(viewPosition) + _toEntityOffset;
+        }
+
+        public Vector3 ToView(Vector2 entityDirection)
+        {
+            return new Vector3(entityDirection.x, 0, entityDirection.y);
+        }
+
+        public Vector2 ToEntity(Vector3 viewDirection)
+        {
+            return new Vector2(viewDirection.x, viewDirection.z);
         }
 
         public void SetFieldSize(int width, int height)
         {
-            _fieldWidth = width;
-            _fieldHeight = height;
+            _toViewOffset = -0.5f * new Vector3(width - 1, 0, height - 1);
+            _toEntityOffset = 0.5f * new Vector2(width - 1, height - 1);
         }
     }
 }
