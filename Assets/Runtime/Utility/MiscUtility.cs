@@ -6,7 +6,7 @@ namespace Runtime.Utility
     {
         public static Vector3 Convert(Vector2 direction)
         {
-            return new Vector3(-direction.y, 0, direction.x);
+            return new Vector3(direction.x, 0, direction.y);
         }
     }
 }
