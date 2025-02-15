@@ -26,6 +26,7 @@ namespace Runtime
 
             builder.Register<Session>(Lifetime.Singleton);
 
+            builder.Register<FloorInitialization>(Lifetime.Singleton);
             builder.Register<PlayerInitialization>(Lifetime.Singleton);
             builder.Register<TransformConverter>(Lifetime.Singleton)
                 .As<ITransformConverter>()

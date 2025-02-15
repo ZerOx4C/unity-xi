@@ -20,7 +20,7 @@ namespace Runtime
         private readonly DiceBehaviour _diceBehaviourPrefab;
         private readonly DicePresenter _dicePresenter;
         private readonly CompositeDisposable _disposables = new();
-        private readonly FloorBehaviour _floorBehaviourPrefab;
+        private readonly FloorInitialization _floorInitialization;
         private readonly PlayerInitialization _playerInitialization;
         private readonly PlayerInputSubject _playerInput;
         private readonly Session _session;
@@ -32,7 +32,7 @@ namespace Runtime
         public TestEntryPoint(
             DiceBehaviour diceBehaviourPrefab,
             DicePresenter dicePresenter,
-            FloorBehaviour floorBehaviourPrefab,
+            FloorInitialization floorInitialization,
             PlayerInitialization playerInitialization,
             PlayerInputSubject playerInput,
             Session session,
@@ -40,7 +40,7 @@ namespace Runtime
         {
             _diceBehaviourPrefab = diceBehaviourPrefab;
             _dicePresenter = dicePresenter;
-            _floorBehaviourPrefab = floorBehaviourPrefab;
+            _floorInitialization = floorInitialization;
             _playerInitialization = playerInitialization;
             _playerInput = playerInput;
             _session = session;
@@ -50,9 +50,7 @@ namespace Runtime
         public async UniTask StartAsync(CancellationToken cancellation)
         {
             var playerInitializationTask = _playerInitialization.InitializeAsync(cancellation);
-
-            var floorInstantiateTask = Instantiator.Create(_floorBehaviourPrefab)
-                .InstantiateAsync(cancellation).First;
+            var floorInitializationTask = _floorInitialization.InitializeAsync(cancellation);
 
             _session.Field.OnDiceAdd
                 .SubscribeAwait(async (dice, token) =>
@@ -83,16 +81,8 @@ namespace Runtime
 
             _transformConverter.SetFieldSize(_session.Field.Width, _session.Field.Height);
 
-            var floorBehaviour = await floorInstantiateTask;
-            await floorBehaviour.SetupAsync(new FloorBehaviour.Config
-                {
-                    CellSize = 1,
-                    FieldWidth = _session.Field.Width,
-                    FieldHeight = _session.Field.Height,
-                },
-                cancellation);
-
             await playerInitializationTask;
+            await floorInitializationTask;
 
             _readyToMove = true;
 
