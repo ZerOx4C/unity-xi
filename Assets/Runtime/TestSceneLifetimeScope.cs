@@ -13,6 +13,7 @@ namespace Runtime
     {
         public DevilBehaviour devilPrefab;
         public DiceBehaviour dicePrefab;
+        public FloorBehaviour floorPrefab;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -20,6 +21,7 @@ namespace Runtime
 
             builder.RegisterInstance(devilPrefab);
             builder.RegisterInstance(dicePrefab);
+            builder.RegisterInstance(floorPrefab);
 
             builder.Register<Session>(Lifetime.Singleton);
 

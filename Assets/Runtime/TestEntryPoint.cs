@@ -22,6 +22,7 @@ namespace Runtime
         private readonly DiceBehaviour _diceBehaviourPrefab;
         private readonly DicePresenter _dicePresenter;
         private readonly CompositeDisposable _disposables = new();
+        private readonly FloorBehaviour _floorBehaviourPrefab;
         private readonly PlayerDevilController _playerDevilController;
         private readonly PlayerInputSubject _playerInput;
         private readonly Session _session;
@@ -35,6 +36,7 @@ namespace Runtime
             DevilPresenter devilPresenter,
             DiceBehaviour diceBehaviourPrefab,
             DicePresenter dicePresenter,
+            FloorBehaviour floorBehaviourPrefab,
             PlayerDevilController playerDevilController,
             PlayerInputSubject playerInput,
             Session session,
@@ -44,6 +46,7 @@ namespace Runtime
             _devilPresenter = devilPresenter;
             _diceBehaviourPrefab = diceBehaviourPrefab;
             _dicePresenter = dicePresenter;
+            _floorBehaviourPrefab = floorBehaviourPrefab;
             _playerDevilController = playerDevilController;
             _playerInput = playerInput;
             _session = session;
@@ -52,6 +55,12 @@ namespace Runtime
 
         public async UniTask StartAsync(CancellationToken cancellation)
         {
+            var floorInstantiateTask = Instantiator.Create(_floorBehaviourPrefab)
+                .InstantiateAsync(cancellation).First;
+
+            var playerInstantiateTask = Instantiator.Create(_devilBehaviourPrefab)
+                .InstantiateAsync(cancellation).First;
+
             _session.Field.OnDiceAdd
                 .SubscribeAwait(async (dice, token) =>
                 {
@@ -75,9 +84,16 @@ namespace Runtime
 
             _transformConverter.SetFieldSize(_session.Field.Width, _session.Field.Height);
 
-            var playerDevilBehaviour = await Instantiator.Create(_devilBehaviourPrefab)
-                .InstantiateAsync(cancellation).First;
+            var floorBehaviour = await floorInstantiateTask;
+            await floorBehaviour.SetupAsync(new FloorBehaviour.Config
+                {
+                    CellSize = 1,
+                    FieldWidth = _session.Field.Width,
+                    FieldHeight = _session.Field.Height,
+                },
+                cancellation);
 
+            var playerDevilBehaviour = await playerInstantiateTask;
             _devilPresenter.Bind(_session.Player, playerDevilBehaviour);
             _playerDevilController.Initialize(_session.Player);
 
