@@ -7,14 +7,21 @@ namespace Runtime.Entity
 {
     public class Dice : IDisposable
     {
+        private readonly ReactiveProperty<bool> _canClimb = new(false);
         private readonly ReactiveProperty<bool> _canOverride = new(false);
+        private readonly ReactiveProperty<bool> _canPush = new(true);
         private readonly ReactiveProperty<Vector2Int> _pushDirection = new(Vector2Int.zero);
+
+        public ReadOnlyReactiveProperty<bool> CanClimb => _canClimb;
         public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;
+        public ReadOnlyReactiveProperty<bool> CanPush => _canPush;
         public ReadOnlyReactiveProperty<Vector2Int> PushDirection => _pushDirection;
 
         public void Dispose()
         {
+            _canClimb.Dispose();
             _canOverride.Dispose();
+            _canPush.Dispose();
             _pushDirection.Dispose();
         }
 
