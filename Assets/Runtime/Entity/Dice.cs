@@ -7,7 +7,7 @@ namespace Runtime.Entity
 {
     public class Dice : IDisposable
     {
-        private readonly ReactiveProperty<bool> _canOverride;
+        private readonly ReactiveProperty<bool> _canOverride = new(false);
         private readonly ReactiveProperty<Vector2Int> _pushDirection = new(Vector2Int.zero);
         public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;
         public ReadOnlyReactiveProperty<Vector2Int> PushDirection => _pushDirection;
