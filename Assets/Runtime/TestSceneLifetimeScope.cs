@@ -3,6 +3,7 @@ using Runtime.Controller;
 using Runtime.Entity;
 using Runtime.Input;
 using Runtime.Presenter;
+using Runtime.Utility;
 using VContainer;
 using VContainer.Unity;
 
@@ -22,6 +23,9 @@ namespace Runtime
 
             builder.Register<Session>(Lifetime.Singleton);
 
+            builder.Register<TransformConverter>(Lifetime.Singleton)
+                .As<ITransformConverter>()
+                .AsSelf();
             builder.Register<DevilPresenter>(Lifetime.Singleton);
             builder.Register<DicePresenter>(Lifetime.Singleton);
             builder.Register<PlayerInputSubject>(Lifetime.Singleton)

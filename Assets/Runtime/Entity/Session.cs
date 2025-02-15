@@ -12,12 +12,11 @@ namespace Runtime.Entity
 
         public Devil Player { get; } = new();
 
-        public Dice TestDice { get; } = new();
+        public Field Field { get; } = new(10, 10);
 
         public void Dispose()
         {
             Player.Dispose();
-            TestDice.Dispose();
         }
 
         public void Tick(float deltaTime)
