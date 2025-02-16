@@ -43,6 +43,7 @@ namespace Runtime
             // UseCase
             builder.Register<DiceFinalization>(Lifetime.Singleton);
             builder.Register<DiceInitialization>(Lifetime.Singleton);
+            builder.Register<DicePushing>(Lifetime.Singleton);
             builder.Register<FloorInitialization>(Lifetime.Singleton);
             builder.Register<PlayerInitialization>(Lifetime.Singleton);
 

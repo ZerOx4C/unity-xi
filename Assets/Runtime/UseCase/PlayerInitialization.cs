@@ -35,11 +35,10 @@ namespace Runtime.UseCase
 
         public async UniTask PerformAsync(CancellationToken cancellation)
         {
-            var playerInstantiateTask = Instantiator.Create(_devilBehaviourPrefab)
+            var devilBehaviour = await Instantiator.Create(_devilBehaviourPrefab)
                 .InstantiateAsync(cancellation).First;
 
-            var playerDevilBehaviour = await playerInstantiateTask;
-            _devilPresenter.Bind(_session.Player, playerDevilBehaviour);
+            _devilPresenter.Bind(_session.Player, devilBehaviour);
             _playerDevilController.Initialize(_session.Player);
 
             _playerInput.Enable();
