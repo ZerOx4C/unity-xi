@@ -1,7 +1,7 @@
 using System;
 using R3;
+using Runtime.Utility;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Runtime.Entity
 {
@@ -30,10 +30,7 @@ namespace Runtime.Entity
 
         public bool TryBeginPush(Vector2Int direction)
         {
-            Assert.IsTrue(direction == Vector2Int.left ||
-                          direction == Vector2Int.right ||
-                          direction == Vector2Int.up ||
-                          direction == Vector2Int.down);
+            AssertUtility.IsValidDirection(direction);
 
             if (_slidingDirection.Value != Vector2Int.zero)
             {

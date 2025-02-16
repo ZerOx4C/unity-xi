@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
+using Runtime.Utility;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -58,10 +59,7 @@ namespace Runtime.Entity
 
         public async UniTask<bool> TryPushDiceAsync(Dice targetDice, Vector2Int direction, CancellationToken cancellation)
         {
-            Assert.IsTrue(direction == Vector2Int.left ||
-                          direction == Vector2Int.right ||
-                          direction == Vector2Int.up ||
-                          direction == Vector2Int.down);
+            AssertUtility.IsValidDirection(direction);
 
             var nextPosition = GetDicePosition(targetDice) + direction;
             if (!_bounds.Contains(nextPosition))
