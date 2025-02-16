@@ -11,7 +11,7 @@ namespace Runtime.Presenter
 {
     public class DevilPresenter : IDisposable
     {
-        private const float PushingThreshold = 0.1f;
+        private const float BumpingThreshold = 0.1f;
         private readonly DicePushing _dicePushing;
         private readonly CompositeDisposable _disposables = new();
         private readonly ITransformConverter _transformConverter;
@@ -32,13 +32,13 @@ namespace Runtime.Presenter
 
         public void Bind(Devil devil, DevilBehaviour behaviour)
         {
-            devil.PushingTime
-                .Where(v => PushingThreshold < v.x)
+            devil.BumpingTime
+                .Where(v => BumpingThreshold < v.x)
                 .SubscribeAwait((_, token) => _dicePushing.PerformPushXAsync(devil, token))
                 .AddTo(_disposables);
 
-            devil.PushingTime
-                .Where(v => PushingThreshold < v.y)
+            devil.BumpingTime
+                .Where(v => BumpingThreshold < v.y)
                 .SubscribeAwait((_, token) => _dicePushing.PerformPushYAsync(devil, token))
                 .AddTo(_disposables);
 

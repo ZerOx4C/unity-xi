@@ -6,14 +6,14 @@ namespace Runtime.Entity
 {
     public class Devil : IDisposable
     {
+        private readonly ReactiveProperty<Vector2> _bumpingTime = new();
         private readonly ReactiveProperty<Vector2> _direction = new(Vector2.up);
-        private readonly ReactiveProperty<Vector2> _pushingTime = new();
         private readonly ReactiveProperty<float> _speed = new(0);
         private Vector2 _lastPosition;
 
         public float MaxDirectionSpeed { get; set; }
         public float MaxAcceleration { get; set; }
-        public ReadOnlyReactiveProperty<Vector2> PushingTime => _pushingTime;
+        public ReadOnlyReactiveProperty<Vector2> BumpingTime => _bumpingTime;
         public Vector2 DesiredDirection { get; set; } = Vector2.up;
         public float DesiredSpeed { get; set; }
         public ReactiveProperty<Vector2> Position { get; } = new();
@@ -41,7 +41,7 @@ namespace Runtime.Entity
         {
             UpdateDirection(deltaTime);
             UpdateSpeed(deltaTime);
-            UpdatePushDirection(deltaTime);
+            UpdateBumpingTime(deltaTime);
         }
 
         private void UpdateDirection(float deltaTime)
@@ -75,29 +75,29 @@ namespace Runtime.Entity
             _speed.Value += deltaSpeed;
         }
 
-        private void UpdatePushDirection(float deltaTime)
+        private void UpdateBumpingTime(float deltaTime)
         {
-            var pushingTime = _pushingTime.Value;
+            var bumpingTime = _bumpingTime.Value;
 
             if (Velocity.CurrentValue.x != 0 && Mathf.Approximately(_lastPosition.x, Position.Value.x))
             {
-                pushingTime.x += deltaTime;
+                bumpingTime.x += deltaTime;
             }
             else
             {
-                pushingTime.x = 0;
+                bumpingTime.x = 0;
             }
 
             if (Velocity.CurrentValue.y != 0 && Mathf.Approximately(_lastPosition.y, Position.Value.y))
             {
-                pushingTime.y += deltaTime;
+                bumpingTime.y += deltaTime;
             }
             else
             {
-                pushingTime.y = 0;
+                bumpingTime.y = 0;
             }
 
-            _pushingTime.Value = pushingTime;
+            _bumpingTime.Value = bumpingTime;
             _lastPosition = Position.Value;
         }
     }

@@ -37,7 +37,7 @@ namespace Runtime.Presenter
 
             var disposables = new CompositeDisposable();
 
-            dice.PushDirection
+            dice.SlidingDirection
                 .Where(dir => dir != Vector2.zero)
                 .SubscribeAwait(async (dir, token) =>
                 {
