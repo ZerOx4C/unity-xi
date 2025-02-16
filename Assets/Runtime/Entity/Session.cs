@@ -20,6 +20,7 @@ namespace Runtime.Entity
 
         public void Dispose()
         {
+            Field.Dispose();
             Player.Dispose();
         }
 
