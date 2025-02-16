@@ -47,6 +47,12 @@ namespace Runtime.Entity
         private void UpdateDirection(float deltaTime)
         {
             var diffAngle = Vector2.SignedAngle(_direction.Value, DesiredDirection);
+            if (Mathf.Approximately(diffAngle, 0))
+            {
+                _direction.Value = DesiredDirection;
+                return;
+            }
+
             if (Mathf.Approximately(diffAngle, -180))
             {
                 diffAngle = 180;
