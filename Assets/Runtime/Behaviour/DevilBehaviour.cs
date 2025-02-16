@@ -14,11 +14,11 @@ namespace Runtime.Behaviour
         public void SetVelocity(Vector3 velocity)
         {
             _rigidbody.linearVelocity = velocity;
+        }
 
-            if (velocity != Vector3.zero)
-            {
-                transform.rotation = Quaternion.LookRotation(velocity);
-            }
+        public void SetDirection(Vector3 direction)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
         }
     }
 }

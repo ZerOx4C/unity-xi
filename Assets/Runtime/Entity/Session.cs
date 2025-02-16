@@ -8,11 +8,15 @@ namespace Runtime.Entity
         [Inject]
         public Session()
         {
+            Field = new Field(10, 10);
+
+            Player = new Devil();
+            Player.MaxDirectionSpeed = 720;
+            Player.MaxAcceleration = 80;
         }
 
-        public Devil Player { get; } = new();
-
-        public Field Field { get; } = new(10, 10);
+        public Field Field { get; }
+        public Devil Player { get; }
 
         public void Dispose()
         {
