@@ -39,7 +39,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 844661717189749981}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 2e11a4cfa58891347bb60005c2a746bb, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -92,7 +92,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2162382601482083502}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 2e11a4cfa58891347bb60005c2a746bb, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -156,11 +156,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 2031156951273203223, guid: f07dfbce526551a40a1c534ccb635039, type: 3}
-  floor: {fileID: 7537211495987937360}
   wallPositiveX: {fileID: 1143091907603366693}
   wallNegativeX: {fileID: 7795503663968131322}
   wallPositiveZ: {fileID: 5579831451286881955}
   wallNegativeZ: {fileID: 1516436779839317111}
+  floor: {fileID: 7537211495987937360}
 --- !u!1 &4032405582695741774
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,7 +200,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4032405582695741774}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 2e11a4cfa58891347bb60005c2a746bb, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -306,7 +306,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5124990668236088468}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 2e11a4cfa58891347bb60005c2a746bb, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
