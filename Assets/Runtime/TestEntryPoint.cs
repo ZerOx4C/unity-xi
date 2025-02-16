@@ -61,8 +61,7 @@ namespace Runtime
                 .SubscribeAwait((dice, token) => _diceFinalization.PerformAsync(dice, token))
                 .AddTo(_disposables);
 
-            _session.Player.Position
-                .Select(Vector2Int.RoundToInt)
+            _session.Player.DiscretePosition
                 .DistinctUntilChanged()
                 .Subscribe(v => Debug.Log($"position = {v}"))
                 .AddTo(_disposables);

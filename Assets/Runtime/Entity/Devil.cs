@@ -11,8 +11,12 @@ namespace Runtime.Entity
 
         public Vector2 DesiredDirection { get; set; } = Vector2.up;
         public float DesiredSpeed { get; set; }
-
         public ReactiveProperty<Vector2> Position { get; } = new();
+
+        public ReadOnlyReactiveProperty<Vector2Int> DiscretePosition => Position
+            .Select(Vector2Int.RoundToInt)
+            .ToReadOnlyReactiveProperty();
+
         public ReadOnlyReactiveProperty<Vector2> Direction => _direction;
         public ReadOnlyReactiveProperty<float> Speed => _speed;
 
