@@ -18,8 +18,6 @@ namespace Runtime
 
         protected override void Configure(IContainerBuilder builder)
         {
-            base.Configure(builder);
-
             // Behaviour
             builder.RegisterInstance(devilPrefab);
             builder.RegisterInstance(dicePrefab);
