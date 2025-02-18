@@ -24,7 +24,7 @@ namespace Runtime.Input
             _move.Dispose();
         }
 
-        public void OnMove(InputAction.CallbackContext context)
+        void InputSystem_Actions.IPlayerActions.OnMove(InputAction.CallbackContext context)
         {
             _move.OnNext(context);
         }
