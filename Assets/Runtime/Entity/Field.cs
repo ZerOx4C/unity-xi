@@ -118,25 +118,7 @@ namespace Runtime.Entity
                 .FirstAsync(cancellation)
                 .AsUniTask();
 
-            MoveDice(targetDice, nextPosition);
-
             return true;
-        }
-
-        private void MoveDice(Dice targetDice, Vector2Int destPosition)
-        {
-            var destIndex = GetIndex(destPosition);
-
-            var oldDice = _dices[destIndex];
-            if (oldDice != null)
-            {
-                _diceDisposableTable.Remove(oldDice, out var disposables);
-                disposables.Dispose();
-
-                _onDiceRemove.OnNext(oldDice);
-            }
-
-            targetDice.Position.Value = destPosition;
         }
 
         private int GetIndex(Vector2Int position)

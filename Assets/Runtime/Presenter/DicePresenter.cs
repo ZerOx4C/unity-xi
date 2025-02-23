@@ -55,6 +55,16 @@ namespace Runtime.Presenter
                 })
                 .AddTo(disposables);
 
+            dice.MovementType.CombineLatest(dice.MovingDirection, (type, dir) => (type, dir))
+                .Where(v => v.type == DiceMovementType.Roll && v.dir != Vector2.zero)
+                .SubscribeAwait(async (v, token) =>
+                {
+                    var direction = _transformConverter.ToView(v.dir);
+                    await behaviour.PerformRollAsync(direction, token);
+                    dice.EndPush();
+                })
+                .AddTo(disposables);
+
             _disposableTable.Add(dice, disposables);
         }
 

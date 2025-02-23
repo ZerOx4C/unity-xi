@@ -111,6 +111,13 @@ namespace Runtime.Entity
 
         public void EndPush()
         {
+            if (_movementType.Value == DiceMovementType.Roll)
+            {
+                Roll(_movingDirection.Value);
+            }
+
+            Position.Value += _movingDirection.Value;
+
             _movementType.Value = DiceMovementType.None;
             _movingDirection.Value = Vector2Int.zero;
         }

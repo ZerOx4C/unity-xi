@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Runtime.Utility;
 using UnityEngine;
 
 namespace Runtime.Behaviour
@@ -7,6 +8,14 @@ namespace Runtime.Behaviour
     public class DiceBehaviour : MonoBehaviour
     {
         public Transform cube;
+        public DiceTimelineBehaviour rollTimelinePrefab;
+
+        private Instantiator.Config<DiceTimelineBehaviour> _rollTimelineInstantiator;
+
+        private void Awake()
+        {
+            _rollTimelineInstantiator = Instantiator.Create(rollTimelinePrefab).SetParent(transform);
+        }
 
         public async UniTask PerformSlideAsync(Vector3 path, CancellationToken cancellation)
         {
@@ -24,6 +33,18 @@ namespace Runtime.Behaviour
 
                 await UniTask.DelayFrame(1, cancellationToken: cancellation);
             }
+        }
+
+        public async UniTask PerformRollAsync(Vector3 path, CancellationToken cancellation)
+        {
+            cancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation, destroyCancellationToken).Token;
+
+            var timeline = await _rollTimelineInstantiator
+                .SetTransforms(1, transform.position, Quaternion.LookRotation(path, Vector3.up))
+                .InstantiateAsync(cancellation).First;
+
+            await timeline.PlayAsync(cube, cancellation);
+            Destroy(timeline.gameObject);
         }
 
         public void SetPosition(Vector3 position)
