@@ -8,5 +8,6 @@ namespace Runtime.Utility
         Vector3 ToViewPosition(Vector2 entityPosition);
         Vector3 ToView(Vector2 entityDirection);
         Vector2 ToEntity(Vector3 viewDirection);
+        Quaternion ToDiceRotation(int top, int front);
     }
 }

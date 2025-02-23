@@ -49,10 +49,7 @@ namespace Runtime
                 .AddTo(_disposables);
 
             _dice.FaceValues
-                .Subscribe(v =>
-                {
-                    // TODO: diceBehaviourの姿勢変換をテストする
-                })
+                .Subscribe(v => diceBehaviour.SetRotation(_transformConverter.ToDiceRotation(v.top, v.front)))
                 .AddTo(_disposables);
 
             _playerInput.Enable();

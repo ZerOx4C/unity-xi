@@ -6,6 +6,8 @@ namespace Runtime.Behaviour
 {
     public class DiceBehaviour : MonoBehaviour
     {
+        public Transform cube;
+
         public async UniTask PerformPush(Vector3 path, CancellationToken cancellation)
         {
             const float duration = 0.5f;
@@ -22,6 +24,11 @@ namespace Runtime.Behaviour
 
                 await UniTask.DelayFrame(1, cancellationToken: cancellation);
             }
+        }
+
+        public void SetRotation(Quaternion rotation)
+        {
+            cube.localRotation = rotation;
         }
     }
 }
