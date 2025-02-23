@@ -81,7 +81,7 @@ namespace Runtime
                     continue;
                 }
 
-                var dice = new Dice(DiceMovementType.Roll);
+                var dice = new Dice();
                 dice.Randomize();
                 dice.Position.Value = position;
                 _session.Field.AddDice(dice);

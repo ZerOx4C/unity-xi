@@ -9,30 +9,27 @@ namespace Runtime.Behaviour
     {
         public Transform cube;
         public DiceTimelineBehaviour rollTimelinePrefab;
+        public DiceTimelineBehaviour slideTimelinePrefab;
 
         private Instantiator.Config<DiceTimelineBehaviour> _rollTimelineInstantiator;
+        private Instantiator.Config<DiceTimelineBehaviour> _slideTimelineInstantiator;
 
         private void Awake()
         {
             _rollTimelineInstantiator = Instantiator.Create(rollTimelinePrefab).SetParent(transform);
+            _slideTimelineInstantiator = Instantiator.Create(slideTimelinePrefab).SetParent(transform);
         }
 
         public async UniTask PerformSlideAsync(Vector3 path, CancellationToken cancellation)
         {
-            const float duration = 0.5f;
-            var elapsed = 0f;
-            var startPosition = transform.position;
+            cancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation, destroyCancellationToken).Token;
 
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
+            var timeline = await _slideTimelineInstantiator
+                .SetTransforms(1, transform.position, Quaternion.LookRotation(path, Vector3.up))
+                .InstantiateAsync(cancellation).First;
 
-                var progress = Mathf.Clamp01(elapsed / duration);
-                var factor = 1 - Mathf.Exp(-10 * progress);
-                transform.position = startPosition + factor * path;
-
-                await UniTask.DelayFrame(1, cancellationToken: cancellation);
-            }
+            await timeline.PlayAsync(cube, cancellation);
+            Destroy(timeline.gameObject);
         }
 
         public async UniTask PerformRollAsync(Vector3 path, CancellationToken cancellation)
