@@ -44,6 +44,16 @@ namespace Runtime.Entity
             UpdateBumpingTime(deltaTime);
         }
 
+        public void ResetBumpingTimeX()
+        {
+            _bumpingTime.Value *= Vector2.up;
+        }
+
+        public void ResetBumpingTimeY()
+        {
+            _bumpingTime.Value *= Vector2.right;
+        }
+
         private void UpdateDirection(float deltaTime)
         {
             var diffAngle = Vector2.SignedAngle(_direction.Value, DesiredDirection);

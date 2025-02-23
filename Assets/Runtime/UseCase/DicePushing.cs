@@ -19,11 +19,13 @@ namespace Runtime.UseCase
 
         public async UniTask PerformPushXAsync(Devil devil, CancellationToken cancellation)
         {
+            devil.ResetBumpingTimeX();
             await PerformAsync(devil, Vector2Int.right, cancellation);
         }
 
         public async UniTask PerformPushYAsync(Devil devil, CancellationToken cancellation)
         {
+            devil.ResetBumpingTimeY();
             await PerformAsync(devil, Vector2Int.up, cancellation);
         }
 
