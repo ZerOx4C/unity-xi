@@ -37,11 +37,11 @@ namespace Runtime.Presenter
 
             var disposables = new CompositeDisposable();
 
-            dice.SlidingDirection
-                .Where(dir => dir != Vector2.zero)
-                .SubscribeAwait(async (dir, token) =>
+            dice.MovementType.CombineLatest(dice.MovingDirection, (type, dir) => (type, dir))
+                .Where(v => v.type == DiceMovementType.Slide && v.dir != Vector2.zero)
+                .SubscribeAwait(async (v, token) =>
                 {
-                    var direction = _transformConverter.ToView(dir);
+                    var direction = _transformConverter.ToView(v.dir);
                     await behaviour.PerformSlideAsync(direction, token);
                     dice.EndPush();
                 })

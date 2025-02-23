@@ -79,7 +79,7 @@ namespace Runtime.Entity
                 return false;
             }
 
-            await targetDice.SlidingDirection
+            await targetDice.MovingDirection
                 .Where(v => v == Vector2Int.zero)
                 .FirstAsync(cancellation)
                 .AsUniTask();
