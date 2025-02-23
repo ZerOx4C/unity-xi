@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
 using Runtime.Entity;
 using UnityEngine;
 using VContainer;
@@ -28,15 +29,37 @@ namespace Runtime.UseCase
 
         private async UniTask PerformAsync(Devil devil, Vector2Int directionScale, CancellationToken cancellation)
         {
+            var field = _session.Field;
             var direction = Vector2Int.RoundToInt(devil.Direction.CurrentValue) * directionScale;
             var dicePosition = devil.DiscretePosition.CurrentValue + direction;
 
-            if (!_session.Field.TryGetDice(dicePosition, out var dice))
+            if (!field.TryGetDice(dicePosition, out var dice))
             {
                 return;
             }
 
-            await _session.Field.TryPushDiceAsync(dice, direction, cancellation);
+            var nextPosition = dicePosition + direction;
+            if (!field.IsValidPosition(nextPosition))
+            {
+                Debug.Log("Dice is on the edge.");
+                return;
+            }
+
+            if (field.TryGetDice(nextPosition, out var nextDice) && !nextDice.CanOverride.CurrentValue)
+            {
+                Debug.Log("Dice cannot be overriden.");
+                return;
+            }
+
+            if (!dice.TryBeginPush(direction))
+            {
+                return;
+            }
+
+            await dice.MovingDirection
+                .Where(v => v == Vector2Int.zero)
+                .FirstAsync(cancellation)
+                .AsUniTask();
         }
     }
 }

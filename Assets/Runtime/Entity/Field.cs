@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using R3;
-using Runtime.Utility;
 using UnityEngine;
 
 namespace Runtime.Entity
@@ -80,45 +77,9 @@ namespace Runtime.Entity
             return dice != null;
         }
 
-        public Vector2Int GetDicePosition(Dice dice)
+        public bool IsValidPosition(Vector2Int position)
         {
-            var index = Array.IndexOf(_dices, dice);
-            if (index < 0)
-            {
-                throw new InvalidOperationException("Dice is not added to this field.");
-            }
-
-            return new Vector2Int(index % Width, index / Width);
-        }
-
-        public async UniTask<bool> TryPushDiceAsync(Dice targetDice, Vector2Int direction, CancellationToken cancellation)
-        {
-            AssertUtility.IsValidDirection(direction);
-
-            var nextPosition = GetDicePosition(targetDice) + direction;
-            if (!_bounds.Contains(nextPosition))
-            {
-                Debug.Log("Dice is on edge.");
-                return false;
-            }
-
-            if (TryGetDice(nextPosition, out var nextDice) && !nextDice.CanOverride.CurrentValue)
-            {
-                Debug.Log("Dice cannot be overriden.");
-                return false;
-            }
-
-            if (!targetDice.TryBeginPush(direction))
-            {
-                return false;
-            }
-
-            await targetDice.MovingDirection
-                .Where(v => v == Vector2Int.zero)
-                .FirstAsync(cancellation)
-                .AsUniTask();
-
-            return true;
+            return _bounds.Contains(position);
         }
 
         private int GetIndex(Vector2Int position)
