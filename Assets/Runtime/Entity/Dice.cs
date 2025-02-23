@@ -20,6 +20,12 @@ namespace Runtime.Entity
         private readonly ReactiveProperty<(int top, int front, int right)> _faceValues = new((1, 3, 5));
         private readonly ReactiveProperty<DiceMovementType> _movementType = new(DiceMovementType.None);
         private readonly ReactiveProperty<Vector2Int> _movingDirection = new(Vector2Int.zero);
+        private readonly DiceMovementType _pushMovementType;
+
+        public Dice(DiceMovementType pushMovementType = DiceMovementType.Slide)
+        {
+            _pushMovementType = pushMovementType;
+        }
 
         public ReadOnlyReactiveProperty<bool> CanClimb => _canClimb;
         public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;
@@ -73,7 +79,13 @@ namespace Runtime.Entity
                 return false;
             }
 
-            _movementType.Value = DiceMovementType.Slide;
+            if (_pushMovementType == DiceMovementType.None)
+            {
+                Debug.Log("Dice cannot be pushed.");
+                return false;
+            }
+
+            _movementType.Value = _pushMovementType;
             _movingDirection.Value = direction;
             return true;
         }
