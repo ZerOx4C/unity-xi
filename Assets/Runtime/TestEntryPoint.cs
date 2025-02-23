@@ -76,10 +76,14 @@ namespace Runtime
             var fieldBounds = new RectInt(0, 0, _session.Field.Width, _session.Field.Height);
             foreach (var position in fieldBounds.allPositionsWithin)
             {
-                if (0.8f < Random.value)
+                if (0.2f < Random.value)
                 {
-                    _session.Field.AddDice(new Dice(), position);
+                    continue;
                 }
+
+                var dice = new Dice();
+                dice.Randomize();
+                _session.Field.AddDice(dice, position);
             }
         }
 

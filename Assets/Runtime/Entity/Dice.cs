@@ -2,6 +2,7 @@ using System;
 using R3;
 using Runtime.Utility;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Runtime.Entity
 {
@@ -41,6 +42,22 @@ namespace Runtime.Entity
             _canPush.Dispose();
             _movementType.Dispose();
             _movingDirection.Dispose();
+        }
+
+        public void Randomize()
+        {
+            // TODO: パターン数的に偏ってるハズなので要改善
+            var x = Random.Range(0, 4);
+            while (0 < x--)
+            {
+                Roll(Vector2Int.right);
+            }
+
+            var y = Random.Range(0, 4);
+            while (0 < y--)
+            {
+                Roll(Vector2Int.up);
+            }
         }
 
         public void Roll(Vector2Int direction)

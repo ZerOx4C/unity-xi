@@ -37,6 +37,10 @@ namespace Runtime.Presenter
 
             var disposables = new CompositeDisposable();
 
+            dice.FaceValues
+                .Subscribe(v => behaviour.SetRotation(_transformConverter.ToDiceRotation(v.top, v.front)))
+                .AddTo(disposables);
+
             dice.MovementType.CombineLatest(dice.MovingDirection, (type, dir) => (type, dir))
                 .Where(v => v.type == DiceMovementType.Slide && v.dir != Vector2.zero)
                 .SubscribeAwait(async (v, token) =>
