@@ -83,7 +83,8 @@ namespace Runtime
 
                 var dice = new Dice();
                 dice.Randomize();
-                _session.Field.AddDice(dice, position);
+                dice.Position.Value = position;
+                _session.Field.AddDice(dice);
             }
         }
 

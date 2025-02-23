@@ -34,6 +34,7 @@ namespace Runtime.Entity
         public ReadOnlyReactiveProperty<(int top, int front, int right)> FaceValues => _faceValues;
         public ReadOnlyReactiveProperty<DiceMovementType> MovementType => _movementType;
         public ReadOnlyReactiveProperty<Vector2Int> MovingDirection => _movingDirection;
+        public ReactiveProperty<Vector2Int> Position { get; } = new(Vector2Int.zero);
 
         public void Dispose()
         {
@@ -42,6 +43,7 @@ namespace Runtime.Entity
             _canPush.Dispose();
             _movementType.Dispose();
             _movingDirection.Dispose();
+            Position.Dispose();
         }
 
         public void Randomize()
