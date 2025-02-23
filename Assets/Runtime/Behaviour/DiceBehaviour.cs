@@ -8,7 +8,7 @@ namespace Runtime.Behaviour
     {
         public Transform cube;
 
-        public async UniTask PerformPush(Vector3 path, CancellationToken cancellation)
+        public async UniTask PerformSlideAsync(Vector3 path, CancellationToken cancellation)
         {
             const float duration = 0.5f;
             var elapsed = 0f;

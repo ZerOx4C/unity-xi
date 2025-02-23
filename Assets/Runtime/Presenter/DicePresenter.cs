@@ -42,7 +42,7 @@ namespace Runtime.Presenter
                 .SubscribeAwait(async (dir, token) =>
                 {
                     var direction = _transformConverter.ToView(dir);
-                    await behaviour.PerformPush(direction, token);
+                    await behaviour.PerformSlideAsync(direction, token);
                     dice.EndPush();
                 })
                 .AddTo(disposables);
