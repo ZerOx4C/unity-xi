@@ -41,6 +41,7 @@ namespace Runtime.Entity
             _canClimb.Dispose();
             _canOverride.Dispose();
             _canPush.Dispose();
+            _faceValues.Dispose();
             _movementType.Dispose();
             _movingDirection.Dispose();
             Position.Dispose();
