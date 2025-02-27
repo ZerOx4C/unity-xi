@@ -37,8 +37,13 @@ namespace Runtime.Presenter
 
             var disposables = new CompositeDisposable();
 
-            dice.Position
-                .Subscribe(v => behaviour.SetPosition(_transformConverter.ToViewPosition(v)))
+            dice.Position.CombineLatest(dice.Height, (position, height) => (position, height))
+                .Subscribe(v =>
+                {
+                    var position = _transformConverter.ToViewPosition(v.position);
+                    position.y = v.height - 1;
+                    behaviour.SetPosition(position);
+                })
                 .AddTo(disposables);
 
             dice.FaceValues

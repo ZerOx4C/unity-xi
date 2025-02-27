@@ -20,6 +20,7 @@ namespace Runtime.Entity
             _dices = new Dice[width * height];
         }
 
+        public IEnumerable<Dice> Dices => _dices.Where(d => d != null);
         public int Width => _bounds.width;
         public int Height => _bounds.height;
         public Observable<Dice> OnDiceAdd => _onDiceAdd;
@@ -102,6 +103,8 @@ namespace Runtime.Entity
 
             _dices[GetIndex(newPosition)] = dice;
             _dices[GetIndex(oldPosition)] = null;
+
+            // TODO: バニッシュ判定はこの辺ですべきか
         }
     }
 }

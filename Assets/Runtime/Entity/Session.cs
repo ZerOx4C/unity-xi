@@ -26,6 +26,11 @@ namespace Runtime.Entity
 
         public void Tick(float deltaTime)
         {
+            foreach (var dice in Field.Dices)
+            {
+                dice.Tick(deltaTime);
+            }
+
             Player.Tick(deltaTime);
         }
     }
