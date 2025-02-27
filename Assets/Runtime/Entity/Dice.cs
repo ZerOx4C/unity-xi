@@ -67,15 +67,14 @@ namespace Runtime.Entity
 
         public void Randomize()
         {
-            // TODO: パターン数的に偏ってるハズなので要改善
-            var x = Random.Range(0, 4);
-            while (0 < x--)
+            var count = Random.Range(0, 6);
+            for (var i = 0; i < count; i++)
             {
-                Roll(Vector2Int.right);
+                Roll(i % 2 == 0 ? Vector2Int.right : Vector2Int.up);
             }
 
-            var y = Random.Range(0, 4);
-            while (0 < y--)
+            count = Random.Range(0, 4);
+            while (0 < count--)
             {
                 Roll(Vector2Int.up);
             }
