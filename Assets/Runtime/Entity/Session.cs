@@ -1,11 +1,14 @@
 using System;
+using R3;
 using VContainer;
 
 namespace Runtime.Entity
 {
     public class Session : IDisposable
     {
+        private readonly CompositeDisposable _disposables = new();
         private readonly Spawner _spawner;
+        private readonly Vanisher _vanisher;
 
         [Inject]
         public Session()
@@ -17,6 +20,7 @@ namespace Runtime.Entity
             Player.MaxAcceleration = 80;
 
             _spawner = new Spawner(Field);
+            _vanisher = new Vanisher(Field);
         }
 
         public Field Field { get; }
@@ -25,6 +29,7 @@ namespace Runtime.Entity
 
         public void Dispose()
         {
+            _disposables.Dispose();
             Field.Dispose();
             Player.Dispose();
         }
@@ -35,6 +40,10 @@ namespace Runtime.Entity
             {
                 throw new InvalidOperationException("Already started.");
             }
+
+            Field.OnDiceMove
+                .Subscribe(_vanisher.Evaluate)
+                .AddTo(_disposables);
 
             _spawner.SpawnInitialDices(0.2f);
 

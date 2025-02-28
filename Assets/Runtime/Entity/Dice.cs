@@ -17,8 +17,8 @@ namespace Runtime.Entity
     {
         private const float CanClimbHeight = 0.5f;
         private const float CanOverrideHeight = 0.2f;
-        private const float SpawnDuration = 1;
-        private const float VanishDuration = 1f;
+        private const float SpawnDuration = 1f;
+        private const float VanishDuration = 10f;
 
         private readonly ReactiveProperty<bool> _canClimb = new(true);
         private readonly ReactiveProperty<bool> _canOverride = new(true);
@@ -150,6 +150,16 @@ namespace Runtime.Entity
             _movingDirection.Value = Vector2Int.zero;
         }
 
+        public void BeginVanish()
+        {
+            _vanishing.Value = true;
+        }
+
+        public void RewindVanish()
+        {
+            // TODO: 時間か割合指定で少し戻る
+        }
+
         public void Tick(float deltaTime)
         {
             UpdateSpawnProgress(deltaTime);
@@ -186,7 +196,7 @@ namespace Runtime.Entity
 
             if (1 <= _vanishProgress)
             {
-                _vanishing.Value = false;
+                // TODO: 完了イベントを発行する
             }
         }
 

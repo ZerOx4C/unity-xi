@@ -10,7 +10,9 @@ namespace Runtime.Entity
     {
         private readonly Dictionary<Dice, IDisposable> _diceDisposableTable = new();
         private readonly Dice[] _dices;
+        private readonly Vector2Int[] _neighborOffsets = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
         private readonly Subject<Dice> _onDiceAdd = new();
+        private readonly Subject<Dice> _onDiceMove = new();
         private readonly Subject<Dice> _onDiceRemove = new();
 
         public Field(int width, int height)
@@ -24,6 +26,7 @@ namespace Runtime.Entity
         public int Width => Bounds.width;
         public int Height => Bounds.height;
         public Observable<Dice> OnDiceAdd => _onDiceAdd;
+        public Observable<Dice> OnDiceMove => _onDiceMove;
         public Observable<Dice> OnDiceRemove => _onDiceRemove;
 
         public void Dispose()
@@ -53,6 +56,11 @@ namespace Runtime.Entity
                 .Subscribe(v => OnDicePositionChange(dice, v.Previous, v.Current))
                 .AddTo(disposables);
 
+            dice.Height.CombineLatest(dice.Vanishing, (height, vanishing) => (height, vanishing))
+                .Where(v => v is { height: <= 0, vanishing: true })
+                .Subscribe(_ => RemoveDice(dice))
+                .AddTo(disposables);
+
             _dices[index] = dice;
             _onDiceAdd.OnNext(dice);
         }
@@ -76,6 +84,17 @@ namespace Runtime.Entity
         {
             dice = _dices[GetIndex(position)];
             return dice != null;
+        }
+
+        public void GetNeighborDices(Vector2Int position, out Dice[] dices)
+        {
+            dices = _neighborOffsets
+                .Select(offset => position + offset)
+                .Where(IsValidPosition)
+                .Select(GetIndex)
+                .Select(index => _dices[index])
+                .Where(dice => dice != null)
+                .ToArray();
         }
 
         public bool IsValidPosition(Vector2Int position)
@@ -103,8 +122,7 @@ namespace Runtime.Entity
 
             _dices[GetIndex(newPosition)] = dice;
             _dices[GetIndex(oldPosition)] = null;
-
-            // TODO: バニッシュ判定はこの辺ですべきか
+            _onDiceMove.OnNext(dice);
         }
     }
 }
