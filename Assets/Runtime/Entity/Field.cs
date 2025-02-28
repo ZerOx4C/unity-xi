@@ -8,7 +8,6 @@ namespace Runtime.Entity
 {
     public class Field : IDisposable
     {
-        private readonly RectInt _bounds;
         private readonly Dictionary<Dice, IDisposable> _diceDisposableTable = new();
         private readonly Dice[] _dices;
         private readonly Subject<Dice> _onDiceAdd = new();
@@ -16,13 +15,14 @@ namespace Runtime.Entity
 
         public Field(int width, int height)
         {
-            _bounds = new RectInt(0, 0, width, height);
+            Bounds = new RectInt(0, 0, width, height);
             _dices = new Dice[width * height];
         }
 
         public IEnumerable<Dice> Dices => _dices.Where(d => d != null);
-        public int Width => _bounds.width;
-        public int Height => _bounds.height;
+        public RectInt Bounds { get; }
+        public int Width => Bounds.width;
+        public int Height => Bounds.height;
         public Observable<Dice> OnDiceAdd => _onDiceAdd;
         public Observable<Dice> OnDiceRemove => _onDiceRemove;
 
@@ -80,12 +80,12 @@ namespace Runtime.Entity
 
         public bool IsValidPosition(Vector2Int position)
         {
-            return _bounds.Contains(position);
+            return Bounds.Contains(position);
         }
 
         private int GetIndex(Vector2Int position)
         {
-            if (!_bounds.Contains(position))
+            if (!Bounds.Contains(position))
             {
                 throw new ArgumentOutOfRangeException(nameof(position), "Position is not on this field.");
             }

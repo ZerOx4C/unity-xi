@@ -9,7 +9,6 @@ using Runtime.Utility;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using Random = UnityEngine.Random;
 
 namespace Runtime
 {
@@ -23,8 +22,6 @@ namespace Runtime
         private readonly PlayerInputSubject _playerInput;
         private readonly Session _session;
         private readonly TransformConverter _transformConverter;
-
-        private bool _readyToMove;
 
         [Inject]
         public TestEntryPoint(
@@ -71,21 +68,7 @@ namespace Runtime
             await playerInitializationTask;
             await floorInitializationTask;
 
-            _readyToMove = true;
-
-            var fieldBounds = new RectInt(0, 0, _session.Field.Width, _session.Field.Height);
-            foreach (var position in fieldBounds.allPositionsWithin)
-            {
-                if (0.2f < Random.value)
-                {
-                    continue;
-                }
-
-                var dice = new Dice();
-                dice.Randomize();
-                dice.Position.Value = position;
-                _session.Field.AddDice(dice);
-            }
+            _session.Start();
         }
 
         public void Dispose()
@@ -95,7 +78,7 @@ namespace Runtime
 
         public void Tick()
         {
-            if (!_readyToMove)
+            if (!_session.Started)
             {
                 return;
             }
