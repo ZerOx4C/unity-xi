@@ -32,9 +32,10 @@ namespace Runtime.Entity
 
         public void Dispose()
         {
+            _bumpingTime.Dispose();
+            _direction.Dispose();
+            _speed.Dispose();
             Position.Dispose();
-            Direction.Dispose();
-            Speed.Dispose();
         }
 
         public void Tick(float deltaTime)
