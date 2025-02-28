@@ -50,6 +50,11 @@ namespace Runtime.Entity
         public ReadOnlyReactiveProperty<Vector2Int> MovingDirection => _movingDirection;
         public ReactiveProperty<Vector2Int> Position { get; } = new(Vector2Int.zero);
         public ReadOnlyReactiveProperty<bool> Spawning => _spawning;
+
+        public ReadOnlyReactiveProperty<int> Value => _faceValues
+            .Select(v => v.top)
+            .ToReadOnlyReactiveProperty();
+
         public ReadOnlyReactiveProperty<bool> Vanishing => _vanishing;
 
         public void Dispose()
