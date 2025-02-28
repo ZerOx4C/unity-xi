@@ -17,7 +17,7 @@ namespace Runtime.Entity
             var targetValue = targetDice.Value.CurrentValue;
             if (targetValue == 1)
             {
-                // TODO: 1専用ロジックに分岐させる
+                EvaluateOne(targetDice);
                 return;
             }
 
@@ -62,6 +62,24 @@ namespace Runtime.Entity
             }
 
             // TODO: コンボ情報を構築する
+        }
+
+        private void EvaluateOne(Dice targetDice)
+        {
+            _field.GetNeighborDices(targetDice.Position.Value, out var neighborDices);
+            if (!neighborDices.Any(d => d.Vanishing.CurrentValue))
+            {
+                return;
+            }
+
+            foreach (var dice in _field.Dices.Where(d => d.Value.CurrentValue == 1))
+            {
+                if (!dice.Vanishing.CurrentValue)
+                {
+                    // TODO: 沈まずに消えるようにする
+                    dice.BeginVanish();
+                }
+            }
         }
     }
 }
