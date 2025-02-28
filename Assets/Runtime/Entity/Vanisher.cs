@@ -28,12 +28,14 @@ namespace Runtime.Entity
 
             while (diceStack.TryPop(out var currentDice))
             {
-                if (currentDice.Value.CurrentValue == targetValue)
+                knownDices.Add(currentDice);
+
+                if (currentDice.Value.CurrentValue != targetValue)
                 {
-                    matchedDices.Add(currentDice);
+                    continue;
                 }
 
-                knownDices.Add(currentDice);
+                matchedDices.Add(currentDice);
 
                 _field.GetNeighborDices(currentDice.Position.Value, out var neighborDices);
                 foreach (var dice in neighborDices.Except(knownDices))
