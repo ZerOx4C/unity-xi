@@ -1,29 +1,27 @@
 using System;
+using System.Collections.Generic;
 using R3;
 using Runtime.Behaviour;
 using Runtime.Entity;
 using Runtime.Utility;
 using VContainer;
-using Object = UnityEngine.Object;
 
 namespace Runtime.Presenter
 {
     public class FieldPresenter : IDisposable
     {
-        private readonly Instantiator.Config<DiceBehaviour> _diceBehaviourInstantiator;
-        private readonly DiceBehaviourRepository _diceBehaviourRepository;
+        private readonly DiceBehaviourProvider _diceBehaviourProvider;
         private readonly DicePresenter _dicePresenter;
+        private readonly Dictionary<Dice, DiceBehaviour> _diceToBehaviourTable = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly ReactiveProperty<bool> _isReady = new();
 
         [Inject]
         public FieldPresenter(
-            DiceBehaviour diceBehaviourPrefab,
-            DiceBehaviourRepository diceBehaviourRepository,
+            DiceBehaviourProvider diceBehaviourProvider,
             DicePresenter dicePresenter)
         {
-            _diceBehaviourInstantiator = Instantiator.Create(diceBehaviourPrefab);
-            _diceBehaviourRepository = diceBehaviourRepository;
+            _diceBehaviourProvider = diceBehaviourProvider;
             _dicePresenter = dicePresenter;
         }
 
@@ -38,23 +36,23 @@ namespace Runtime.Presenter
         public void Bind(Field field, FieldBehaviour fieldBehaviour)
         {
             _disposables.Clear();
-            _diceBehaviourRepository.Clear();
+            _diceBehaviourProvider.ReleaseAll();
 
             field.OnDiceAdd
-                .SubscribeAwait(async (dice, token) =>
+                .Subscribe(dice =>
                 {
-                    var diceBehaviour = await _diceBehaviourInstantiator.InstantiateAsync(token).First;
-                    _diceBehaviourRepository.Add(dice, diceBehaviour);
+                    var diceBehaviour = _diceBehaviourProvider.Obtain();
+                    _diceToBehaviourTable.Add(dice, diceBehaviour);
                     _dicePresenter.Bind(dice, diceBehaviour);
-                }, AwaitOperation.Parallel)
+                })
                 .AddTo(_disposables);
 
             field.OnDiceRemove
                 .Subscribe(dice =>
                 {
                     _dicePresenter.Unbind(dice);
-                    _diceBehaviourRepository.Remove(dice, out var diceBehaviour);
-                    Object.Destroy(diceBehaviour.gameObject);
+                    _diceToBehaviourTable.Remove(dice, out var diceBehaviour);
+                    _diceBehaviourProvider.Release(diceBehaviour);
                 })
                 .AddTo(_disposables);
 

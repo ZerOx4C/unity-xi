@@ -49,7 +49,7 @@ namespace Runtime
             builder.Register<DicePushing>(Lifetime.Singleton);
 
             // Utility
-            builder.Register<DiceBehaviourRepository>(Lifetime.Singleton);
+            builder.Register<DiceBehaviourProvider>(Lifetime.Singleton);
             builder.Register<TransformConverter>(Lifetime.Singleton)
                 .As<ITransformConverter>()
                 .AsSelf();
