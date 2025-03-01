@@ -50,5 +50,5 @@ MonoBehaviour:
   autoInjectGameObjects: []
   devilPrefab: {fileID: 220525327561458309, guid: f6adcfc9b75231e479a6954583e2ea2d, type: 3}
   dicePrefab: {fileID: -8036555079065133420, guid: 9a81db73f0b6c434a8fb166b4a384b2c, type: 3}
-  floorPrefab: {fileID: 9121716330886493656, guid: 7f426b1509a60654d8c7c29e4b16777a, type: 3}
+  fieldPrefab: {fileID: 9121716330886493656, guid: 7f426b1509a60654d8c7c29e4b16777a, type: 3}
   uiPrefab: {fileID: 3532268939479494324, guid: cddb10bb0102c0347a6144d48399cb94, type: 3}

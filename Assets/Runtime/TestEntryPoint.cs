@@ -13,8 +13,8 @@ namespace Runtime
 {
     public class TestEntryPoint : IAsyncStartable, ITickable
     {
+        private readonly FieldInitialization _fieldInitialization;
         private readonly FieldPresenter _fieldPresenter;
-        private readonly FloorInitialization _floorInitialization;
         private readonly PlayerInitialization _playerInitialization;
         private readonly PlayerInputSubject _playerInput;
         private readonly Session _session;
@@ -23,16 +23,16 @@ namespace Runtime
 
         [Inject]
         public TestEntryPoint(
+            FieldInitialization fieldInitialization,
             FieldPresenter fieldPresenter,
-            FloorInitialization floorInitialization,
             PlayerInitialization playerInitialization,
             PlayerInputSubject playerInput,
             Session session,
             TransformConverter transformConverter,
             UIInitialization uiInitialization)
         {
+            _fieldInitialization = fieldInitialization;
             _fieldPresenter = fieldPresenter;
-            _floorInitialization = floorInitialization;
             _playerInitialization = playerInitialization;
             _playerInput = playerInput;
             _session = session;
@@ -43,7 +43,7 @@ namespace Runtime
         public async UniTask StartAsync(CancellationToken cancellation)
         {
             var playerInitializationTask = _playerInitialization.PerformAsync(cancellation);
-            var floorInitializationTask = _floorInitialization.PerformAsync(cancellation);
+            var fieldInitializationTask = _fieldInitialization.PerformAsync(cancellation);
             var uiInitializationTask = _uiInitialization.PerformAsync(cancellation);
 
             _fieldPresenter.Initialize(_session.Field);
@@ -51,7 +51,7 @@ namespace Runtime
             _transformConverter.SetFieldSize(_session.Field.Width, _session.Field.Height);
 
             await playerInitializationTask;
-            await floorInitializationTask;
+            await fieldInitializationTask;
             await uiInitializationTask;
 
             _session.Start();

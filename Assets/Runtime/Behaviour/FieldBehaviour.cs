@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Runtime.Behaviour
 {
-    public class FloorBehaviour : MonoBehaviour
+    public class FieldBehaviour : MonoBehaviour
     {
         public Transform cellPrefab;
         public Transform wallPositiveX;

@@ -7,33 +7,33 @@ using VContainer;
 
 namespace Runtime.UseCase
 {
-    public class FloorInitialization
+    public class FieldInitialization
     {
-        private readonly FloorBehaviour _floorBehaviourPrefab;
+        private readonly FieldBehaviour _fieldBehaviourPrefab;
         private readonly Session _session;
 
         [Inject]
-        public FloorInitialization(
-            FloorBehaviour floorBehaviourPrefab,
+        public FieldInitialization(
+            FieldBehaviour fieldBehaviourPrefab,
             Session session)
         {
-            _floorBehaviourPrefab = floorBehaviourPrefab;
+            _fieldBehaviourPrefab = fieldBehaviourPrefab;
             _session = session;
         }
 
         public async UniTask PerformAsync(CancellationToken cancellation)
         {
-            var floorBehaviour = await Instantiator.Create(_floorBehaviourPrefab)
+            var fieldBehaviour = await Instantiator.Create(_fieldBehaviourPrefab)
                 .InstantiateAsync(cancellation).First;
 
-            var config = new FloorBehaviour.Config
+            var config = new FieldBehaviour.Config
             {
                 CellSize = 1,
                 FieldWidth = _session.Field.Width,
                 FieldHeight = _session.Field.Height,
             };
 
-            await floorBehaviour.SetupAsync(config, cancellation);
+            await fieldBehaviour.SetupAsync(config, cancellation);
         }
     }
 }
