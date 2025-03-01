@@ -45,6 +45,10 @@ namespace Runtime.Entity
                 .Subscribe(_vanisher.Evaluate)
                 .AddTo(_disposables);
 
+            _spawner.OnSpawn
+                .Subscribe(dice => Field.AddDice(dice))
+                .AddTo(_disposables);
+
             _spawner.SpawnInitialDices(0.2f);
 
             Started = true;

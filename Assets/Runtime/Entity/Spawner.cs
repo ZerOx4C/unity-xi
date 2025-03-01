@@ -1,17 +1,26 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
+using R3;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Runtime.Entity
 {
-    public class Spawner
+    public class Spawner : IDisposable
     {
-        private readonly Field _field;
+        private readonly IFieldReader _fieldReader;
+        private readonly Subject<Dice> _onSpawn = new();
 
-        public Spawner(Field field)
+        public Spawner(IFieldReader fieldReader)
         {
-            _field = field;
+            _fieldReader = fieldReader;
+        }
+
+        public Observable<Dice> OnSpawn => _onSpawn;
+
+        public void Dispose()
+        {
+            _onSpawn.Dispose();
         }
 
         public void SpawnInitialDices(float density)
@@ -21,22 +30,19 @@ namespace Runtime.Entity
                 throw new ArgumentOutOfRangeException(nameof(density), "Density must be normalized.");
             }
 
-            var positionList = new List<Vector2Int>();
-            foreach (var position in _field.Bounds.allPositionsWithin)
-            {
-                positionList.Add(position);
-            }
+            var diceCount = Mathf.CeilToInt(density * _fieldReader.Width * _fieldReader.Height);
+            diceCount -= _fieldReader.Dices.Count();
 
-            var diceCount = Mathf.CeilToInt(density * positionList.Count);
+            var positions = _fieldReader.GetEmptyPositions().ToList();
             while (0 < diceCount--)
             {
-                var position = positionList[Random.Range(0, positionList.Count)];
-                positionList.Remove(position);
+                var position = positions[Random.Range(0, positions.Count)];
+                positions.Remove(position);
 
                 var dice = new Dice();
                 dice.Randomize();
                 dice.Position.Value = position;
-                _field.AddDice(dice);
+                _onSpawn.OnNext(dice);
             }
         }
 
