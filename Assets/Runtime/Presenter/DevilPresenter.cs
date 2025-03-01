@@ -32,6 +32,8 @@ namespace Runtime.Presenter
 
         public void Bind(Devil devil, DevilBehaviour behaviour)
         {
+            _disposables.Clear();
+
             devil.BumpingTime
                 .Where(v => BumpingThreshold < v.x)
                 .SubscribeAwait((_, token) => _dicePushing.PerformPushXAsync(devil, token), AwaitOperation.Drop)
