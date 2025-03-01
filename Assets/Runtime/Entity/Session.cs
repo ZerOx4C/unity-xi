@@ -49,7 +49,7 @@ namespace Runtime.Entity
                 .Subscribe(dice => Field.AddDice(dice))
                 .AddTo(_disposables);
 
-            _spawner.SpawnInitialDices(0.2f);
+            _spawner.FillRandomly(0.2f);
 
             Started = true;
         }

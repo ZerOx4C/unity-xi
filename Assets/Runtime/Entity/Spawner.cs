@@ -23,14 +23,14 @@ namespace Runtime.Entity
             _onSpawn.Dispose();
         }
 
-        public void SpawnInitialDices(float density)
+        public void FillRandomly(float targetDensity)
         {
-            if (density is < 0 or > 1)
+            if (targetDensity is < 0 or > 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(density), "Density must be normalized.");
+                throw new ArgumentOutOfRangeException(nameof(targetDensity), "Density must be normalized.");
             }
 
-            var diceCount = Mathf.CeilToInt(density * _fieldReader.Width * _fieldReader.Height);
+            var diceCount = Mathf.CeilToInt(targetDensity * _fieldReader.Width * _fieldReader.Height);
             diceCount -= _fieldReader.Dices.Count();
 
             var positions = _fieldReader.GetEmptyPositions().ToList();
