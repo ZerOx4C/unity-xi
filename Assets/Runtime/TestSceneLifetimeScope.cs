@@ -40,10 +40,9 @@ namespace Runtime
             builder.Register<DebugUIPresenter>(Lifetime.Singleton);
             builder.Register<DevilPresenter>(Lifetime.Singleton);
             builder.Register<DicePresenter>(Lifetime.Singleton);
+            builder.Register<FieldPresenter>(Lifetime.Singleton);
 
             // UseCase
-            builder.Register<DiceFinalization>(Lifetime.Singleton);
-            builder.Register<DiceInitialization>(Lifetime.Singleton);
             builder.Register<DicePushing>(Lifetime.Singleton);
             builder.Register<FloorInitialization>(Lifetime.Singleton);
             builder.Register<PlayerInitialization>(Lifetime.Singleton);
