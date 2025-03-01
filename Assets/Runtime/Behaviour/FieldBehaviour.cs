@@ -39,55 +39,53 @@ namespace Runtime.Behaviour
             _cells = Array.Empty<Transform>();
         }
 
-        public void BeginSetup(Config config)
+        public void BeginSetup(float cellSize, int width, int height)
         {
             _isReady.Value = false;
 
-            Clear();
+            UniTask.Void(async token =>
+            {
+                Clear();
+                SetupColliders(cellSize * width, cellSize * height);
+                await SetupFloorCells(cellSize, width, height, token);
+                _isReady.Value = true;
+            }, ObtainCancellation());
+        }
 
-            var viewWidth = config.CellSize * config.FieldWidth;
-            var viewHeight = config.CellSize * config.FieldHeight;
-            SetupColliderSize(viewWidth, viewHeight);
-
-            var cellCount = config.FieldWidth * config.FieldHeight;
-            var offset = -0.5f * config.CellSize *
-                         new Vector3(config.FieldWidth - 1, 0, config.FieldHeight - 1);
+        private async UniTask SetupFloorCells(float cellSize, int width, int height, CancellationToken cancellation)
+        {
+            var cellCount = width * height;
+            var offset = -0.5f * cellSize * new Vector3(width - 1, 0, height - 1);
 
             var positions = new List<Vector3>(cellCount);
-            var fieldBounds = new RectInt(0, 0, config.FieldWidth, config.FieldHeight);
+            var fieldBounds = new RectInt(0, 0, width, height);
             foreach (var p in fieldBounds.allPositionsWithin)
             {
-                positions.Add(config.CellSize * new Vector3(p.x, 0, p.y) + offset);
+                positions.Add(cellSize * new Vector3(p.x, 0, p.y) + offset);
             }
 
             var rotations = new Quaternion[cellCount];
             Array.Fill(rotations, Quaternion.identity);
 
-
-            UniTask.Void(async token =>
-            {
-                _cells = await Instantiator.Create(cellPrefab)
-                    .SetParent(transform)
-                    .SetTransforms(positions, rotations)
-                    .InstantiateAsync(token).All;
-
-                _isReady.Value = true;
-            }, ObtainCancellation());
+            _cells = await Instantiator.Create(cellPrefab)
+                .SetParent(transform)
+                .SetTransforms(positions, rotations)
+                .InstantiateAsync(cancellation).All;
         }
 
-        private void SetupColliderSize(float xLength, float zLength)
+        private void SetupColliders(float width, float height)
         {
-            wallPositiveX.position = new Vector3(xLength / 2, 0, 0);
-            wallNegativeX.position = new Vector3(-xLength / 2, 0, 0);
-            wallPositiveZ.position = new Vector3(0, 0, zLength / 2);
-            wallNegativeZ.position = new Vector3(0, 0, -zLength / 2);
+            wallPositiveX.position = new Vector3(width / 2, 0, 0);
+            wallNegativeX.position = new Vector3(-width / 2, 0, 0);
+            wallPositiveZ.position = new Vector3(0, 0, height / 2);
+            wallNegativeZ.position = new Vector3(0, 0, -height / 2);
 
-            wallPositiveX.localScale = new Vector3(1, 1, zLength);
-            wallNegativeX.localScale = new Vector3(1, 1, zLength);
-            wallPositiveZ.localScale = new Vector3(xLength, 1, 1);
-            wallNegativeZ.localScale = new Vector3(xLength, 1, 1);
+            wallPositiveX.localScale = new Vector3(1, 1, height);
+            wallNegativeX.localScale = new Vector3(1, 1, height);
+            wallPositiveZ.localScale = new Vector3(width, 1, 1);
+            wallNegativeZ.localScale = new Vector3(width, 1, 1);
 
-            floor.localScale = new Vector3(xLength, 1, zLength);
+            floor.localScale = new Vector3(width, 1, height);
         }
 
         private CancellationToken ObtainCancellation()
@@ -98,13 +96,6 @@ namespace Runtime.Behaviour
             return CancellationTokenSource.CreateLinkedTokenSource(
                 _cancellationDisposable.Token,
                 destroyCancellationToken).Token;
-        }
-
-        public class Config
-        {
-            public float CellSize;
-            public int FieldHeight;
-            public int FieldWidth;
         }
     }
 }

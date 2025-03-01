@@ -40,10 +40,6 @@ namespace Runtime.Presenter
             _disposables.Clear();
             _diceBehaviourRepository.Clear();
 
-            fieldBehaviour.IsReady
-                .Subscribe(_isReady.OnNext)
-                .AddTo(_disposables);
-
             field.OnDiceAdd
                 .SubscribeAwait(async (dice, token) =>
                 {
@@ -62,12 +58,10 @@ namespace Runtime.Presenter
                 })
                 .AddTo(_disposables);
 
-            fieldBehaviour.BeginSetup(new FieldBehaviour.Config
-            {
-                CellSize = 1,
-                FieldWidth = field.Width,
-                FieldHeight = field.Height,
-            });
+            fieldBehaviour.BeginSetup(1, field.Width, field.Height);
+            fieldBehaviour.IsReady
+                .Subscribe(_isReady.OnNext)
+                .AddTo(_disposables);
         }
     }
 }
