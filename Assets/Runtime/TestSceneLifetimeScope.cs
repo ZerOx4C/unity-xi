@@ -43,10 +43,10 @@ namespace Runtime
             builder.Register<FieldPresenter>(Lifetime.Singleton);
             builder.Register<GamePresenter>(Lifetime.Singleton);
             builder.Register<SessionPresenter>(Lifetime.Singleton);
+            builder.Register<UIPresenter>(Lifetime.Singleton);
 
             // UseCase
             builder.Register<DicePushing>(Lifetime.Singleton);
-            builder.Register<UIInitialization>(Lifetime.Singleton);
 
             // Utility
             builder.Register<DiceBehaviourRepository>(Lifetime.Singleton);
