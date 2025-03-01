@@ -22,6 +22,7 @@ namespace Runtime
         private readonly PlayerInputSubject _playerInput;
         private readonly Session _session;
         private readonly TransformConverter _transformConverter;
+        private readonly UIInitialization _uiInitialization;
 
         [Inject]
         public TestEntryPoint(
@@ -31,7 +32,8 @@ namespace Runtime
             PlayerInitialization playerInitialization,
             PlayerInputSubject playerInput,
             Session session,
-            TransformConverter transformConverter)
+            TransformConverter transformConverter,
+            UIInitialization uiInitialization)
         {
             _diceFinalization = diceFinalization;
             _diceInitialization = diceInitialization;
@@ -40,6 +42,7 @@ namespace Runtime
             _playerInput = playerInput;
             _session = session;
             _transformConverter = transformConverter;
+            _uiInitialization = uiInitialization;
         }
 
         public async UniTask StartAsync(CancellationToken cancellation)
@@ -47,6 +50,7 @@ namespace Runtime
             var diceInitializationTask = _diceInitialization.InitializeAsync(cancellation);
             var playerInitializationTask = _playerInitialization.PerformAsync(cancellation);
             var floorInitializationTask = _floorInitialization.PerformAsync(cancellation);
+            var uiInitializationTask = _uiInitialization.PerformAsync(cancellation);
 
             await diceInitializationTask;
 
@@ -67,6 +71,7 @@ namespace Runtime
 
             await playerInitializationTask;
             await floorInitializationTask;
+            await uiInitializationTask;
 
             _session.Start();
         }

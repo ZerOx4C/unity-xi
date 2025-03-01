@@ -15,6 +15,7 @@ namespace Runtime
         public DevilBehaviour devilPrefab;
         public DiceBehaviour dicePrefab;
         public FloorBehaviour floorPrefab;
+        public UIBehaviour uiPrefab;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -22,6 +23,7 @@ namespace Runtime
             builder.RegisterInstance(devilPrefab);
             builder.RegisterInstance(dicePrefab);
             builder.RegisterInstance(floorPrefab);
+            builder.RegisterInstance(uiPrefab);
 
             // Controller
             builder.Register<PlayerDevilController>(Lifetime.Singleton);
@@ -35,6 +37,7 @@ namespace Runtime
                 .AsSelf();
 
             // Presenter
+            builder.Register<DebugUIPresenter>(Lifetime.Singleton);
             builder.Register<DevilPresenter>(Lifetime.Singleton);
             builder.Register<DicePresenter>(Lifetime.Singleton);
 
@@ -44,6 +47,7 @@ namespace Runtime
             builder.Register<DicePushing>(Lifetime.Singleton);
             builder.Register<FloorInitialization>(Lifetime.Singleton);
             builder.Register<PlayerInitialization>(Lifetime.Singleton);
+            builder.Register<UIInitialization>(Lifetime.Singleton);
 
             // Utility
             builder.Register<DiceBehaviourRepository>(Lifetime.Singleton);
