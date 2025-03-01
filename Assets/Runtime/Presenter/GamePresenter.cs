@@ -43,7 +43,7 @@ namespace Runtime.Presenter
             _uiPresenter.Bind(_game, uiBehaviour);
 
             _game.Session
-                .SubscribeAwait((session, token) => _sessionPresenter.BindAsync(session, token))
+                .Subscribe(_sessionPresenter.Bind)
                 .AddTo(_disposables);
         }
     }

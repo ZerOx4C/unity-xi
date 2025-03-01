@@ -14,6 +14,7 @@ namespace Runtime.Presenter
         private readonly DiceBehaviourRepository _diceBehaviourRepository;
         private readonly DicePresenter _dicePresenter;
         private readonly CompositeDisposable _disposables = new();
+        private readonly ReactiveProperty<bool> _isReady = new();
 
         [Inject]
         public FieldPresenter(
@@ -26,15 +27,22 @@ namespace Runtime.Presenter
             _dicePresenter = dicePresenter;
         }
 
+        public ReadOnlyReactiveProperty<bool> IsReady => _isReady;
+
         public void Dispose()
         {
+            _isReady.Dispose();
             _disposables.Dispose();
         }
 
-        public void Bind(Field field)
+        public void Bind(Field field, FieldBehaviour fieldBehaviour)
         {
             _disposables.Clear();
             _diceBehaviourRepository.Clear();
+
+            fieldBehaviour.IsReady
+                .Subscribe(_isReady.OnNext)
+                .AddTo(_disposables);
 
             field.OnDiceAdd
                 .SubscribeAwait(async (dice, token) =>
@@ -53,6 +61,13 @@ namespace Runtime.Presenter
                     Object.Destroy(diceBehaviour.gameObject);
                 })
                 .AddTo(_disposables);
+
+            fieldBehaviour.BeginSetup(new FieldBehaviour.Config
+            {
+                CellSize = 1,
+                FieldWidth = field.Width,
+                FieldHeight = field.Height,
+            });
         }
     }
 }

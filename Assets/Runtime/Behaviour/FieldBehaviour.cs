@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
 using Runtime.Utility;
 using UnityEngine;
 
@@ -16,7 +17,17 @@ namespace Runtime.Behaviour
         public Transform wallNegativeZ;
         public Transform floor;
 
+        private CancellationDisposable _cancellationDisposable;
         private Transform[] _cells = { };
+        private ReactiveProperty<bool> _isReady;
+
+        public ReadOnlyReactiveProperty<bool> IsReady => _isReady;
+
+        private void Awake()
+        {
+            _isReady = new ReactiveProperty<bool>(false);
+            _isReady.AddTo(this);
+        }
 
         public void Clear()
         {
@@ -28,8 +39,10 @@ namespace Runtime.Behaviour
             _cells = Array.Empty<Transform>();
         }
 
-        public async UniTask SetupAsync(Config config, CancellationToken cancellation)
+        public void BeginSetup(Config config)
         {
+            _isReady.Value = false;
+
             Clear();
 
             var viewWidth = config.CellSize * config.FieldWidth;
@@ -50,10 +63,16 @@ namespace Runtime.Behaviour
             var rotations = new Quaternion[cellCount];
             Array.Fill(rotations, Quaternion.identity);
 
-            _cells = await Instantiator.Create(cellPrefab)
-                .SetParent(transform)
-                .SetTransforms(positions, rotations)
-                .InstantiateAsync(cancellation).All;
+
+            UniTask.Void(async token =>
+            {
+                _cells = await Instantiator.Create(cellPrefab)
+                    .SetParent(transform)
+                    .SetTransforms(positions, rotations)
+                    .InstantiateAsync(token).All;
+
+                _isReady.Value = true;
+            }, ObtainCancellation());
         }
 
         private void SetupColliderSize(float xLength, float zLength)
@@ -69,6 +88,16 @@ namespace Runtime.Behaviour
             wallNegativeZ.localScale = new Vector3(xLength, 1, 1);
 
             floor.localScale = new Vector3(xLength, 1, zLength);
+        }
+
+        private CancellationToken ObtainCancellation()
+        {
+            _cancellationDisposable?.Dispose();
+            _cancellationDisposable = new CancellationDisposable();
+
+            return CancellationTokenSource.CreateLinkedTokenSource(
+                _cancellationDisposable.Token,
+                destroyCancellationToken).Token;
         }
 
         public class Config

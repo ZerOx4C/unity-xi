@@ -1,5 +1,7 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
 using Runtime.Behaviour;
 using Runtime.Controller;
 using Runtime.Entity;
@@ -9,11 +11,12 @@ using VContainer;
 
 namespace Runtime.Presenter
 {
-    public class SessionPresenter
+    public class SessionPresenter : IDisposable
     {
         private readonly DevilBehaviour _devilBehaviourPrefab;
         private readonly DevilPresenter _devilPresenter;
         private readonly DicePushing _dicePushing;
+        private readonly CompositeDisposable _disposables = new();
         private readonly FieldBehaviour _fieldBehaviourPrefab;
         private readonly FieldPresenter _fieldPresenter;
         private readonly PlayerDevilController _playerDevilController;
@@ -41,6 +44,11 @@ namespace Runtime.Presenter
             _transformConverter = transformConverter;
         }
 
+        public void Dispose()
+        {
+            _disposables.Dispose();
+        }
+
         public async UniTask InitializeAsync(CancellationToken cancellation)
         {
             var devilBehaviourTask = Instantiator.Create(_devilBehaviourPrefab)
@@ -53,26 +61,22 @@ namespace Runtime.Presenter
             _fieldBehaviour = await fieldBehaviourTask;
         }
 
-        public async UniTask BindAsync(Session session, CancellationToken cancellation)
+        public void Bind(Session session)
         {
+            _disposables.Clear();
+
             _dicePushing.SetField(session.Field);
 
             _transformConverter.SetFieldSize(session.Field.Width, session.Field.Height);
 
-            var config = new FieldBehaviour.Config
-            {
-                CellSize = 1,
-                FieldWidth = session.Field.Width,
-                FieldHeight = session.Field.Height,
-            };
-
-            await _fieldBehaviour.SetupAsync(config, cancellation);
-            _fieldPresenter.Bind(session.Field);
-
+            _fieldPresenter.Bind(session.Field, _fieldBehaviour);
             _devilPresenter.Bind(session.Player, _devilBehaviour);
             _playerDevilController.Initialize(session.Player);
 
-            session.Start();
+            _fieldPresenter.IsReady
+                .Where(v => v)
+                .Subscribe(_ => session.Start())
+                .AddTo(_disposables);
         }
     }
 }
