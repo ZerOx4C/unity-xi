@@ -67,7 +67,7 @@ namespace Runtime.Presenter
             };
 
             await _fieldBehaviour.SetupAsync(config, cancellation);
-            _fieldPresenter.Initialize(session.Field);
+            _fieldPresenter.Bind(session.Field);
 
             _devilPresenter.Bind(session.Player, _devilBehaviour);
             _playerDevilController.Initialize(session.Player);

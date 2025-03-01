@@ -9,12 +9,10 @@ namespace Runtime.Presenter
     public class DebugUIPresenter : IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
-        private readonly Game _game;
 
         [Inject]
-        public DebugUIPresenter(Game game)
+        public DebugUIPresenter()
         {
-            _game = game;
         }
 
         public void Dispose()
@@ -22,10 +20,10 @@ namespace Runtime.Presenter
             _disposables.Dispose();
         }
 
-        public void Initialize(DebugUIBehaviour behaviour)
+        public void Bind(Game game, DebugUIBehaviour behaviour)
         {
             behaviour.resetButton.OnClickAsObservable()
-                .Subscribe(_ => _game.Reset())
+                .Subscribe(_ => game.Reset())
                 .AddTo(_disposables);
         }
     }

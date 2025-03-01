@@ -1,4 +1,5 @@
 using Runtime.Behaviour;
+using Runtime.Entity;
 using VContainer;
 
 namespace Runtime.Presenter
@@ -13,9 +14,9 @@ namespace Runtime.Presenter
             _debugUIPresenter = debugUIPresenter;
         }
 
-        public void Initialize(UIBehaviour behaviour)
+        public void Bind(Game game, UIBehaviour behaviour)
         {
-            _debugUIPresenter.Initialize(behaviour.debugUI);
+            _debugUIPresenter.Bind(game, behaviour.debugUI);
         }
     }
 }

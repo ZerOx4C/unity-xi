@@ -40,7 +40,7 @@ namespace Runtime.Presenter
             var uiBehaviour = await Instantiator.Create(_uiBehaviourPrefab)
                 .InstantiateAsync(cancellation).First;
 
-            _uiPresenter.Initialize(uiBehaviour);
+            _uiPresenter.Bind(_game, uiBehaviour);
 
             _game.Session
                 .SubscribeAwait((session, token) => _sessionPresenter.BindAsync(session, token))

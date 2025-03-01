@@ -31,7 +31,7 @@ namespace Runtime.Presenter
             _disposables.Dispose();
         }
 
-        public void Initialize(Field field)
+        public void Bind(Field field)
         {
             _disposables.Clear();
             _diceBehaviourRepository.Clear();
