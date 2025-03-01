@@ -34,12 +34,12 @@ namespace Runtime.Presenter
         {
             devil.BumpingTime
                 .Where(v => BumpingThreshold < v.x)
-                .SubscribeAwait((_, token) => _dicePushing.PerformPushXAsync(devil, token))
+                .SubscribeAwait((_, token) => _dicePushing.PerformPushXAsync(devil, token), AwaitOperation.Drop)
                 .AddTo(_disposables);
 
             devil.BumpingTime
                 .Where(v => BumpingThreshold < v.y)
-                .SubscribeAwait((_, token) => _dicePushing.PerformPushYAsync(devil, token))
+                .SubscribeAwait((_, token) => _dicePushing.PerformPushYAsync(devil, token), AwaitOperation.Drop)
                 .AddTo(_disposables);
 
             behaviour.UpdateAsObservable()
