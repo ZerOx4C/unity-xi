@@ -29,7 +29,7 @@ namespace Runtime
             builder.Register<PlayerDevilController>(Lifetime.Singleton);
 
             // Entity
-            builder.Register<Session>(Lifetime.Singleton);
+            builder.Register<Game>(Lifetime.Singleton);
 
             // Input
             builder.Register<PlayerInputSubject>(Lifetime.Singleton)
@@ -41,6 +41,7 @@ namespace Runtime
             builder.Register<DevilPresenter>(Lifetime.Singleton);
             builder.Register<DicePresenter>(Lifetime.Singleton);
             builder.Register<FieldPresenter>(Lifetime.Singleton);
+            builder.Register<GamePresenter>(Lifetime.Singleton);
             builder.Register<SessionPresenter>(Lifetime.Singleton);
 
             // UseCase

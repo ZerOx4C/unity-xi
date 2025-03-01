@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Runtime.Behaviour;
 using Runtime.Entity;
+using UnityEngine;
 using UnityEngine.Assertions;
 using VContainer;
 
@@ -34,6 +35,18 @@ namespace Runtime.Utility
 
             _behaviourToDiceTable.Remove(behaviour);
             return true;
+        }
+
+        // TODO: 入れ物じゃなく払い出しをするようなモジュールにした方が良いかも
+        public void Clear()
+        {
+            foreach (var diceBehaviour in _diceToBehaviourTable.Values)
+            {
+                Object.Destroy(diceBehaviour.gameObject);
+            }
+
+            _behaviourToDiceTable.Clear();
+            _diceToBehaviourTable.Clear();
         }
 
         public bool TryResolve(DiceBehaviour behaviour, out Dice dice)

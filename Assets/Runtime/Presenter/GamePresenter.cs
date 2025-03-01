@@ -1,20 +1,21 @@
 using System;
 using R3;
-using Runtime.Behaviour;
 using Runtime.Entity;
 using VContainer;
 
 namespace Runtime.Presenter
 {
-    public class DebugUIPresenter : IDisposable
+    public class GamePresenter : IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
         private readonly Game _game;
+        private readonly SessionPresenter _sessionPresenter;
 
         [Inject]
-        public DebugUIPresenter(Game game)
+        public GamePresenter(Game game, SessionPresenter sessionPresenter)
         {
             _game = game;
+            _sessionPresenter = sessionPresenter;
         }
 
         public void Dispose()
@@ -22,10 +23,10 @@ namespace Runtime.Presenter
             _disposables.Dispose();
         }
 
-        public void Initialize(DebugUIBehaviour behaviour)
+        public void Initialize()
         {
-            behaviour.resetButton.OnClickAsObservable()
-                .Subscribe(_ => _game.Reset())
+            _game.Session
+                .SubscribeAwait((session, token) => _sessionPresenter.BindAsync(session, token))
                 .AddTo(_disposables);
         }
     }

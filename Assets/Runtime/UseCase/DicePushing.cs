@@ -9,12 +9,16 @@ namespace Runtime.UseCase
 {
     public class DicePushing
     {
-        private readonly Session _session;
+        private Field _field;
 
         [Inject]
-        public DicePushing(Session session)
+        public DicePushing()
         {
-            _session = session;
+        }
+
+        public void SetField(Field field)
+        {
+            _field = field;
         }
 
         public async UniTask PerformPushXAsync(Devil devil, CancellationToken cancellation)
@@ -31,23 +35,22 @@ namespace Runtime.UseCase
 
         private async UniTask PerformAsync(Devil devil, Vector2Int directionScale, CancellationToken cancellation)
         {
-            var field = _session.Field;
             var direction = Vector2Int.RoundToInt(devil.Direction.CurrentValue) * directionScale;
             var dicePosition = devil.DiscretePosition.CurrentValue + direction;
 
-            if (!field.TryGetDice(dicePosition, out var dice))
+            if (!_field.TryGetDice(dicePosition, out var dice))
             {
                 return;
             }
 
             var nextPosition = dicePosition + direction;
-            if (!field.IsValidPosition(nextPosition))
+            if (!_field.IsValidPosition(nextPosition))
             {
                 Debug.Log("Dice is on the edge.");
                 return;
             }
 
-            if (field.TryGetDice(nextPosition, out var nextDice) && !nextDice.CanOverride.CurrentValue)
+            if (_field.TryGetDice(nextPosition, out var nextDice) && !nextDice.CanOverride.CurrentValue)
             {
                 Debug.Log("Dice cannot be overriden.");
                 return;

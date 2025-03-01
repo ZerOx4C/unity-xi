@@ -34,6 +34,7 @@ namespace Runtime.Presenter
         public void Initialize(Field field)
         {
             _disposables.Clear();
+            _diceBehaviourRepository.Clear();
 
             field.OnDiceAdd
                 .SubscribeAwait(async (dice, token) =>
