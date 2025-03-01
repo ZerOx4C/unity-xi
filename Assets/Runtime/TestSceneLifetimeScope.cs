@@ -56,6 +56,10 @@ namespace Runtime
 
             // EntryPoint
             builder.RegisterEntryPoint<TestEntryPoint>();
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            builder.RegisterEntryPoint<DebugLogPresenter>();
+#endif
         }
     }
 }

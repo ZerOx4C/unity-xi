@@ -1,7 +1,5 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using R3;
 using Runtime.Entity;
 using Runtime.Input;
 using Runtime.Presenter;
@@ -13,9 +11,8 @@ using VContainer.Unity;
 
 namespace Runtime
 {
-    public class TestEntryPoint : IAsyncStartable, ITickable, IDisposable
+    public class TestEntryPoint : IAsyncStartable, ITickable
     {
-        private readonly CompositeDisposable _disposables = new();
         private readonly FieldPresenter _fieldPresenter;
         private readonly FloorInitialization _floorInitialization;
         private readonly PlayerInitialization _playerInitialization;
@@ -51,11 +48,6 @@ namespace Runtime
 
             _fieldPresenter.Initialize(_session.Field);
 
-            _session.Player.DiscretePosition
-                .DistinctUntilChanged()
-                .Subscribe(v => Debug.Log($"position = {v}"))
-                .AddTo(_disposables);
-
             _transformConverter.SetFieldSize(_session.Field.Width, _session.Field.Height);
 
             await playerInitializationTask;
@@ -63,11 +55,6 @@ namespace Runtime
             await uiInitializationTask;
 
             _session.Start();
-        }
-
-        public void Dispose()
-        {
-            _disposables.Dispose();
         }
 
         public void Tick()
