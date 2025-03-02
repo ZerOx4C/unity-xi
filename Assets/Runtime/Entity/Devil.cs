@@ -7,7 +7,8 @@ namespace Runtime.Entity
     public class Devil : IDisposable
     {
         private readonly ReactiveProperty<Vector2> _bumpingTime = new();
-        private readonly ReactiveProperty<Vector2> _direction = new(Vector2.up);
+        private readonly ReactiveProperty<Vector2> _faceDirection = new(Vector2.up);
+        private readonly ReactiveProperty<Vector2> _moveDirection = new(Vector2.up);
         private readonly ReactiveProperty<float> _speed = new(0);
         private Vector2 _lastPosition;
 
@@ -22,10 +23,11 @@ namespace Runtime.Entity
             .Select(Vector2Int.RoundToInt)
             .ToReadOnlyReactiveProperty();
 
-        public ReadOnlyReactiveProperty<Vector2> Direction => _direction;
+        public ReadOnlyReactiveProperty<Vector2> FaceDirection => _faceDirection;
+        public ReadOnlyReactiveProperty<Vector2> MoveDirection => _moveDirection;
         public ReadOnlyReactiveProperty<float> Speed => _speed;
 
-        public ReadOnlyReactiveProperty<Vector2> Velocity => _direction
+        public ReadOnlyReactiveProperty<Vector2> Velocity => _moveDirection
             .CombineLatest(_speed, (d, s) => (d, s))
             .Select(v => v.d * v.s)
             .ToReadOnlyReactiveProperty();
@@ -33,14 +35,16 @@ namespace Runtime.Entity
         public void Dispose()
         {
             _bumpingTime.Dispose();
-            _direction.Dispose();
+            _faceDirection.Dispose();
+            _moveDirection.Dispose();
             _speed.Dispose();
             Position.Dispose();
         }
 
         public void Tick(float deltaTime)
         {
-            UpdateDirection(deltaTime);
+            UpdateFaceDirection(deltaTime);
+            UpdateMoveDirection(deltaTime);
             UpdateSpeed(deltaTime);
             UpdateBumpingTime(deltaTime);
         }
@@ -55,29 +59,29 @@ namespace Runtime.Entity
             _bumpingTime.Value *= Vector2.right;
         }
 
-        private void UpdateDirection(float deltaTime)
+        private void UpdateFaceDirection(float deltaTime)
         {
-            var diffAngle = Vector2.SignedAngle(_direction.Value, DesiredDirection);
+            var diffAngle = Vector2.SignedAngle(_faceDirection.Value, DesiredDirection);
             if (Mathf.Approximately(diffAngle, 0))
             {
-                _direction.Value = DesiredDirection;
+                _faceDirection.Value = DesiredDirection;
                 return;
-            }
-
-            if (Mathf.Approximately(diffAngle, -180))
-            {
-                diffAngle = 180;
             }
 
             var maxDeltaAngle = MaxDirectionSpeed * deltaTime;
             var deltaAngle = Mathf.Clamp(diffAngle, -maxDeltaAngle, maxDeltaAngle);
 
-            _direction.Value = Quaternion.Euler(0, 0, deltaAngle) * _direction.Value;
+            _faceDirection.Value = Quaternion.Euler(0, 0, deltaAngle) * _faceDirection.Value;
+        }
+
+        private void UpdateMoveDirection(float deltaTime)
+        {
+            _moveDirection.Value = DesiredDirection;
         }
 
         private void UpdateSpeed(float deltaTime)
         {
-            var directionFactor = Mathf.Max(0, Vector2.Dot(_direction.Value, DesiredDirection));
+            var directionFactor = Mathf.Max(0, Vector2.Dot(_moveDirection.Value, _faceDirection.Value));
             var diffSpeed = directionFactor * DesiredSpeed - _speed.Value;
 
             var maxDeltaSpeed = MaxAcceleration * deltaTime;

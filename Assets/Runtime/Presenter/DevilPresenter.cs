@@ -49,7 +49,7 @@ namespace Runtime.Presenter
                 {
                     devil.Position.Value = _transformConverter.ToEntityPosition(behaviour.transform.position);
                     behaviour.SetVelocity(_transformConverter.ToView(devil.Velocity.CurrentValue));
-                    behaviour.SetDirection(_transformConverter.ToView(devil.Direction.CurrentValue));
+                    behaviour.SetDirection(_transformConverter.ToView(devil.FaceDirection.CurrentValue));
                 })
                 .AddTo(_disposables);
         }
