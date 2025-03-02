@@ -8,8 +8,12 @@ namespace Runtime.Entity
 {
     public class Spawner : IDisposable
     {
+        private const float SpawnRoughInterval = 10f;
+
         private readonly IFieldReader _fieldReader;
         private readonly Subject<Dice> _onSpawn = new();
+
+        private float _elapsedTime;
 
         public Spawner(IFieldReader fieldReader)
         {
@@ -33,8 +37,30 @@ namespace Runtime.Entity
             var diceCount = Mathf.CeilToInt(targetDensity * _fieldReader.Width * _fieldReader.Height);
             diceCount -= _fieldReader.Dices.Count();
 
+            Spawn(diceCount);
+        }
+
+        public void Tick(float deltaTime)
+        {
+            _elapsedTime += deltaTime;
+
+            // TODO: 外から更新される難易度情報も使う
+            var spawnChance = 1f / (1 + Mathf.Exp(SpawnRoughInterval - _elapsedTime));
+            if (spawnChance < Random.value)
+            {
+                return;
+            }
+
+            _elapsedTime = 0;
+            Spawn(1);
+        }
+
+        private int Spawn(int count)
+        {
             var positions = _fieldReader.GetEmptyPositions().ToList();
-            while (0 < diceCount--)
+            var ret = Mathf.Min(count, positions.Count);
+
+            while (0 < count--)
             {
                 var position = positions[Random.Range(0, positions.Count)];
                 positions.Remove(position);
@@ -44,11 +70,8 @@ namespace Runtime.Entity
                 dice.Position.Value = position;
                 _onSpawn.OnNext(dice);
             }
-        }
 
-        public void Tick(float deltaTime)
-        {
-            // TODO: 外から更新される難易度情報をもとに時々ダイスをスポーンさせる
+            return ret;
         }
     }
 }
