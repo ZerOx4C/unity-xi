@@ -19,6 +19,7 @@ namespace Runtime.Entity
         private const float CanOverrideHeight = 0.2f;
         private const float SpawnDuration = 1f;
         private const float VanishDuration = 10f;
+        private const float VanishRewindRate = 0.1f;
 
         private readonly ReactiveProperty<bool> _canClimb = new(true);
         private readonly ReactiveProperty<bool> _canOverride = new(true);
@@ -157,7 +158,7 @@ namespace Runtime.Entity
 
         public void RewindVanish()
         {
-            // TODO: 時間か割合指定で少し戻る
+            _vanishProgress = Mathf.Clamp01(_vanishProgress - VanishRewindRate);
         }
 
         public void Tick(float deltaTime)
