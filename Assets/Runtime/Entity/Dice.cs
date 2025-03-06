@@ -6,13 +6,6 @@ using Random = UnityEngine.Random;
 
 namespace Runtime.Entity
 {
-    public enum DiceMovementType
-    {
-        None,
-        Roll,
-        Slide,
-    }
-
     public class Dice : IDisposable
     {
         private const float CanClimbHeight = 0.5f;
