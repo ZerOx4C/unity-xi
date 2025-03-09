@@ -4,7 +4,11 @@ namespace Runtime.Behaviour
 {
     public class DevilBehaviour : MonoBehaviour
     {
-        private static readonly int SpeedParameter = Animator.StringToHash("Speed");
+        private static readonly int ParamRunning = Animator.StringToHash("Running");
+        private static readonly int ParamRunAnimationSpeed = Animator.StringToHash("RunAnimationSpeed");
+
+        // TODO: モデル設定的なものとしてモデルに持たせる
+        private const float RunAnimationSpeedFactor = 0.36f;
 
         public Animator animator;
 
@@ -19,7 +23,8 @@ namespace Runtime.Behaviour
         {
             _rigidbody.linearVelocity = velocity;
 
-            animator.SetFloat(SpeedParameter, velocity.magnitude);
+            animator.SetBool(ParamRunning, velocity != Vector3.zero);
+            animator.SetFloat(ParamRunAnimationSpeed, velocity.magnitude * RunAnimationSpeedFactor);
         }
 
         public void SetDirection(Vector3 direction)
