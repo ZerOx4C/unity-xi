@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Runtime.Tester
 {
-    public class ModelTester : MonoBehaviour
+    public class RunningAnimationTester : MonoBehaviour
     {
         private static readonly int ParamRunning = Animator.StringToHash("Running");
         private static readonly int ParamRunAnimationSpeed = Animator.StringToHash("RunAnimationSpeed");

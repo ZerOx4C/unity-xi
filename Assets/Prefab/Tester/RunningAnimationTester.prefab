@@ -954,7 +954,7 @@ GameObject:
   - component: {fileID: 8540053774434563974}
   - component: {fileID: 4188598024455282880}
   m_Layer: 0
-  m_Name: ModelTester
+  m_Name: RunningAnimationTester
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
