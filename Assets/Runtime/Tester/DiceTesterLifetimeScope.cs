@@ -4,9 +4,9 @@ using Runtime.Utility;
 using VContainer;
 using VContainer.Unity;
 
-namespace Runtime
+namespace Runtime.Tester
 {
-    public class DiceTestLifetimeScope : LifetimeScope
+    public class DiceTesterLifetimeScope : LifetimeScope
     {
         public DiceBehaviour dicePrefab;
 
@@ -24,7 +24,7 @@ namespace Runtime
             builder.Register<ITransformConverter, TransformConverter>(Lifetime.Singleton);
 
             // EntryPoint
-            builder.RegisterEntryPoint<DiceTestEntryPoint>();
+            builder.RegisterEntryPoint<DiceTesterEntryPoint>();
         }
     }
 }

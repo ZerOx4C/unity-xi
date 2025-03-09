@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2389071516357229484}
   - component: {fileID: 7264309563633683198}
   m_Layer: 0
-  m_Name: DiceTestLifetimeScope
+  m_Name: DiceTesterLifetimeScope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -10,7 +10,7 @@ using VContainer.Unity;
 
 namespace Runtime
 {
-    public class TestSceneLifetimeScope : LifetimeScope
+    public class MainSceneLifetimeScope : LifetimeScope
     {
         public DevilBehaviour devilPrefab;
         public DiceBehaviour dicePrefab;
@@ -55,7 +55,7 @@ namespace Runtime
                 .AsSelf();
 
             // EntryPoint
-            builder.RegisterEntryPoint<TestEntryPoint>();
+            builder.RegisterEntryPoint<MainEntryPoint>();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             builder.RegisterEntryPoint<DebugLogPresenter>();

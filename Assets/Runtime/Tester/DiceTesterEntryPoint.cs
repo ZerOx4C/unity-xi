@@ -11,9 +11,9 @@ using VContainer;
 using VContainer.Unity;
 using Random = UnityEngine.Random;
 
-namespace Runtime
+namespace Runtime.Tester
 {
-    public class DiceTestEntryPoint : IStartable, ITickable, IDisposable
+    public class DiceTesterEntryPoint : IStartable, ITickable, IDisposable
     {
         private readonly Dice _dice = new();
         private readonly DiceBehaviour _diceBehaviourPrefab;
@@ -22,7 +22,7 @@ namespace Runtime
         private readonly ITransformConverter _transformConverter;
 
         [Inject]
-        public DiceTestEntryPoint(
+        public DiceTesterEntryPoint(
             DiceBehaviour diceBehaviourPrefab,
             PlayerInputSubject playerInput,
             ITransformConverter transformConverter)

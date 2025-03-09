@@ -10,7 +10,7 @@ using VContainer.Unity;
 
 namespace Runtime
 {
-    public class TestEntryPoint : IAsyncStartable, ITickable
+    public class MainEntryPoint : IAsyncStartable, ITickable
     {
         private readonly DiceBehaviourProvider _diceBehaviourProvider;
         private readonly Game _game;
@@ -19,7 +19,7 @@ namespace Runtime
         private readonly SessionPresenter _sessionPresenter;
 
         [Inject]
-        public TestEntryPoint(
+        public MainEntryPoint(
             DiceBehaviourProvider diceBehaviourProvider,
             Game game,
             GamePresenter gamePresenter,
