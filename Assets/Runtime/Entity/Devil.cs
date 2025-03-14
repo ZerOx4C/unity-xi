@@ -43,8 +43,8 @@ namespace Runtime.Entity
 
         public void Tick(float deltaTime)
         {
+            _moveDirection.Value = DesiredDirection;
             UpdateFaceDirection(deltaTime);
-            UpdateMoveDirection(deltaTime);
             UpdateSpeed(deltaTime);
             UpdateBumpingTime(deltaTime);
         }
@@ -72,11 +72,6 @@ namespace Runtime.Entity
             var deltaAngle = Mathf.Clamp(diffAngle, -maxDeltaAngle, maxDeltaAngle);
 
             _faceDirection.Value = Quaternion.Euler(0, 0, deltaAngle) * _faceDirection.Value;
-        }
-
-        private void UpdateMoveDirection(float deltaTime)
-        {
-            _moveDirection.Value = DesiredDirection;
         }
 
         private void UpdateSpeed(float deltaTime)
