@@ -10,13 +10,13 @@ namespace Runtime.Entity
         private readonly ReactiveProperty<Vector2> _faceDirection = new(Vector2.up);
         private readonly ReactiveProperty<Vector2> _moveDirection = new(Vector2.up);
         private readonly ReactiveProperty<float> _speed = new(0);
+        private Vector2 _desiredDirection = Vector2.up;
+        private float _desiredSpeed;
         private Vector2 _lastPosition;
 
         public float MaxDirectionSpeed { get; set; }
         public float MaxAcceleration { get; set; }
         public ReadOnlyReactiveProperty<Vector2> BumpingTime => _bumpingTime;
-        public Vector2 DesiredDirection { get; set; } = Vector2.up;
-        public float DesiredSpeed { get; set; }
         public ReactiveProperty<Vector2> Position { get; } = new();
 
         public ReadOnlyReactiveProperty<Vector2Int> DiscretePosition => Position
@@ -41,9 +41,19 @@ namespace Runtime.Entity
             Position.Dispose();
         }
 
+        public void SetDesiredVelocity(Vector2 velocity)
+        {
+            _desiredSpeed = velocity.magnitude;
+
+            if (0 < _desiredSpeed)
+            {
+                _desiredDirection = velocity.normalized;
+            }
+        }
+
         public void Tick(float deltaTime)
         {
-            _moveDirection.Value = DesiredDirection;
+            _moveDirection.Value = _desiredDirection;
             UpdateFaceDirection(deltaTime);
             UpdateSpeed(deltaTime);
             UpdateBumpingTime(deltaTime);
@@ -61,10 +71,10 @@ namespace Runtime.Entity
 
         private void UpdateFaceDirection(float deltaTime)
         {
-            var diffAngle = Vector2.SignedAngle(_faceDirection.Value, DesiredDirection);
+            var diffAngle = Vector2.SignedAngle(_faceDirection.Value, _desiredDirection);
             if (Mathf.Approximately(diffAngle, 0))
             {
-                _faceDirection.Value = DesiredDirection;
+                _faceDirection.Value = _desiredDirection;
                 return;
             }
 
@@ -77,7 +87,7 @@ namespace Runtime.Entity
         private void UpdateSpeed(float deltaTime)
         {
             var directionFactor = Mathf.Max(0, Vector2.Dot(_moveDirection.Value, _faceDirection.Value));
-            var diffSpeed = directionFactor * DesiredSpeed - _speed.Value;
+            var diffSpeed = directionFactor * _desiredSpeed - _speed.Value;
 
             var maxDeltaSpeed = MaxAcceleration * deltaTime;
             var deltaSpeed = Mathf.Clamp(diffSpeed, -maxDeltaSpeed, maxDeltaSpeed);
