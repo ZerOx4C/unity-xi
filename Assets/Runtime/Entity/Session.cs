@@ -15,7 +15,7 @@ namespace Runtime.Entity
         {
             Field = new Field(10, 10);
 
-            Player = new Devil();
+            Player = new Devil(Field);
             Player.MaxDirectionSpeed = 720;
             Player.MaxAcceleration = 80;
 

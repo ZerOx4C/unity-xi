@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3013176536800147262}
   - component: {fileID: 220525327561458309}
-  - component: {fileID: 894739870615209085}
   - component: {fileID: 5759086960366225174}
   m_Layer: 0
   m_Name: Devil
@@ -48,29 +47,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 8691039530483475690}
---- !u!136 &894739870615209085
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7804612879478155332}
-  m_Material: {fileID: 13400000, guid: 2e11a4cfa58891347bb60005c2a746bb, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.1
-  m_Height: 1.2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!54 &5759086960366225174
 Rigidbody:
   m_ObjectHideFlags: 0

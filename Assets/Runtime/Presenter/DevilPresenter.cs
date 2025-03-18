@@ -34,6 +34,16 @@ namespace Runtime.Presenter
         {
             _disposables.Clear();
 
+            devil.Velocity
+                .Select(_transformConverter.ToView)
+                .Subscribe(behaviour.SetVelocity)
+                .AddTo(_disposables);
+
+            devil.FaceDirection
+                .Select(_transformConverter.ToView)
+                .Subscribe(behaviour.SetDirection)
+                .AddTo(_disposables);
+
             devil.BumpingTime
                 .Where(v => BumpingThreshold < v.x)
                 .SubscribeAwait((_, token) => _dicePushing.PerformPushXAsync(devil, token), AwaitOperation.Drop)
@@ -47,9 +57,8 @@ namespace Runtime.Presenter
             behaviour.UpdateAsObservable()
                 .Subscribe(_ =>
                 {
-                    devil.Position.Value = _transformConverter.ToEntityPosition(behaviour.transform.position);
-                    behaviour.SetVelocity(_transformConverter.ToView(devil.Velocity.CurrentValue));
-                    behaviour.SetDirection(_transformConverter.ToView(devil.FaceDirection.CurrentValue));
+                    devil.SetDesiredPosition(_transformConverter.ToEntityPosition(behaviour.transform.position));
+                    behaviour.transform.position = _transformConverter.ToViewPosition(devil.Position.CurrentValue);
                 })
                 .AddTo(_disposables);
         }
