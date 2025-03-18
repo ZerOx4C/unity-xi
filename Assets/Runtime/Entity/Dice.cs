@@ -8,13 +8,11 @@ namespace Runtime.Entity
 {
     public class Dice : IDisposable
     {
-        private const float CanClimbHeight = 0.5f;
         private const float CanOverrideHeight = 0.2f;
         private const float SpawnDuration = 1f;
         private const float VanishDuration = 10f;
         private const float VanishRewindRate = 0.1f;
 
-        private readonly ReactiveProperty<bool> _canClimb = new(true);
         private readonly ReactiveProperty<bool> _canOverride = new(true);
         private readonly ReactiveProperty<(int top, int front, int right)> _faceValues = new((1, 3, 5));
         private readonly ReactiveProperty<float> _height = new(0);
@@ -36,7 +34,6 @@ namespace Runtime.Entity
             _pushMovementType = pushMovementType;
         }
 
-        public ReadOnlyReactiveProperty<bool> CanClimb => _canClimb;
         public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;
         public ReadOnlyReactiveProperty<(int top, int front, int right)> FaceValues => _faceValues;
         public ReadOnlyReactiveProperty<float> Height => _height;
@@ -53,7 +50,6 @@ namespace Runtime.Entity
 
         public void Dispose()
         {
-            _canClimb.Dispose();
             _canOverride.Dispose();
             _faceValues.Dispose();
             _height.Dispose();
@@ -160,7 +156,6 @@ namespace Runtime.Entity
             UpdateVanishProgress(deltaTime);
             UpdateHeight();
 
-            _canClimb.Value = _height.Value <= CanClimbHeight;
             _canOverride.Value = _height.Value <= CanOverrideHeight;
         }
 
