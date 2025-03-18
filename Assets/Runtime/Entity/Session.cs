@@ -1,5 +1,6 @@
 using System;
 using R3;
+using UnityEngine;
 using VContainer;
 
 namespace Runtime.Entity
@@ -13,11 +14,12 @@ namespace Runtime.Entity
         [Inject]
         public Session()
         {
-            Field = new Field(10, 10);
+            Field = new Field(9, 9);
 
             Player = new Devil(Field);
             Player.MaxDirectionSpeed = 720;
             Player.MaxAcceleration = 80;
+            Player.SetPositionAndDirection(new Vector2(4, 4), Vector2.down);
 
             _spawner = new Spawner(Field);
             _vanisher = new Vanisher(Field);

@@ -56,6 +56,17 @@ namespace Runtime.Entity
             _speed.Dispose();
         }
 
+        public void SetPositionAndDirection(Vector2 position, Vector2 direction)
+        {
+            direction.Normalize();
+
+            _position.Value = position;
+            _faceDirection.Value = direction;
+            _desiredDirection = direction;
+
+            UpdateCellBounds(position);
+        }
+
         public void SetDesiredVelocity(Vector2 velocity)
         {
             _desiredSpeed = velocity.magnitude;
@@ -66,15 +77,8 @@ namespace Runtime.Entity
             }
         }
 
-        public void SetDesiredPosition(Vector2 position, bool force = false)
+        public void SetDesiredPosition(Vector2 position)
         {
-            if (force)
-            {
-                _position.Value = position;
-                UpdateCellBounds(position);
-                return;
-            }
-
             if (_cellBounds.Contains(position))
             {
                 _position.Value = position;
