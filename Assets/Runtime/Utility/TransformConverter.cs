@@ -56,6 +56,11 @@ namespace Runtime.Utility
             return adjustFrontRotation * adjustTopRotation;
         }
 
+        public Vector3 ToDevilViewPosition(Vector2 entityPosition, float height)
+        {
+            return ToViewPosition(entityPosition) + height * Vector3.up;
+        }
+
         public void SetFieldSize(int width, int height)
         {
             _toViewOffset = -0.5f * new Vector3(width - 1, 0, height - 1);

@@ -7,10 +7,12 @@ namespace Runtime.Entity
     public class Devil : IDisposable
     {
         private const float CellPadding = 0.05f;
+        private const float MovableHeightGap = 0.55f;
         private static readonly Vector3 CellSize = new(1, 1, 0);
         private readonly ReactiveProperty<Vector2> _bumpingTime = new();
         private readonly ReactiveProperty<Vector2> _faceDirection = new(Vector2.up);
         private readonly IFieldReader _fieldReader;
+        private readonly ReactiveProperty<float> _height = new(0);
         private readonly ReactiveProperty<Vector2> _moveDirection = new(Vector2.up);
         private readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
         private readonly ReactiveProperty<float> _speed = new(0);
@@ -42,10 +44,13 @@ namespace Runtime.Entity
             .Select(v => v.d * v.s)
             .ToReadOnlyReactiveProperty();
 
+        public ReadOnlyReactiveProperty<float> Height => _height;
+
         public void Dispose()
         {
             _bumpingTime.Dispose();
             _faceDirection.Dispose();
+            _height.Dispose();
             _moveDirection.Dispose();
             _position.Dispose();
             _speed.Dispose();
@@ -138,13 +143,12 @@ namespace Runtime.Entity
                 return false;
             }
 
-            if (_fieldReader.TryGetDice(to, out var dice) &&
-                !dice.CanClimb.CurrentValue)
+            var fromHeight = _fieldReader.GetHeight(from);
+            var toHeight = _fieldReader.GetHeight(to);
+            if (MovableHeightGap < Mathf.Abs(fromHeight - toHeight))
             {
                 return false;
             }
-
-            // TODO: fromとtoで高さの比較？
 
             return true;
         }
@@ -166,7 +170,13 @@ namespace Runtime.Entity
             _moveDirection.Value = _desiredDirection;
             UpdateFaceDirection(deltaTime);
             UpdateSpeed(deltaTime);
+            UpdateHeight();
             UpdateBumpingTime(deltaTime);
+        }
+
+        private void UpdateHeight()
+        {
+            _height.Value = _fieldReader.GetHeight(Vector2Int.RoundToInt(_position.Value));
         }
 
         public void ResetBumpingTimeX()

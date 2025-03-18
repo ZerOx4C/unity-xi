@@ -50,6 +50,27 @@ namespace Runtime.Entity
             return emptyPositions.Except(movingPositions);
         }
 
+        public bool TryGetDice(Vector2Int position, out Dice dice)
+        {
+            dice = _dices[ToIndex(position)];
+            return dice != null;
+        }
+
+        public bool IsValidPosition(Vector2Int position)
+        {
+            return _bounds.Contains(position);
+        }
+
+        public float GetHeight(Vector2Int position)
+        {
+            if (TryGetDice(position, out var dice))
+            {
+                return dice.Height.CurrentValue;
+            }
+
+            return 0;
+        }
+
         public void AddDice(Dice dice)
         {
             if (_dices.Contains(dice))
@@ -95,12 +116,6 @@ namespace Runtime.Entity
             _onDiceRemove.OnNext(dice);
         }
 
-        public bool TryGetDice(Vector2Int position, out Dice dice)
-        {
-            dice = _dices[ToIndex(position)];
-            return dice != null;
-        }
-
         public void GetNeighborDices(Vector2Int position, out Dice[] dices)
         {
             dices = _neighborOffsets
@@ -110,11 +125,6 @@ namespace Runtime.Entity
                 .Select(index => _dices[index])
                 .Where(dice => dice != null)
                 .ToArray();
-        }
-
-        public bool IsValidPosition(Vector2Int position)
-        {
-            return _bounds.Contains(position);
         }
 
         private int ToIndex(Vector2Int position)

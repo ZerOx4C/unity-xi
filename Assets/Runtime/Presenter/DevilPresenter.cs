@@ -54,11 +54,16 @@ namespace Runtime.Presenter
                 .AddTo(_disposables);
 
             Observable.EveryValueChanged(behaviour.transform, t => t.position)
-                .AsUnitObservable()
+                .Select(_transformConverter.ToEntityPosition)
+                .Subscribe(v => devil.SetDesiredPosition(v))
+                .AddTo(_disposables);
+
+            Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
-                    devil.SetDesiredPosition(_transformConverter.ToEntityPosition(behaviour.transform.position));
-                    behaviour.transform.position = _transformConverter.ToViewPosition(devil.Position.CurrentValue);
+                    var position = devil.Position.CurrentValue;
+                    var height = devil.Height.CurrentValue;
+                    behaviour.transform.position = _transformConverter.ToDevilViewPosition(position, height);
                 })
                 .AddTo(_disposables);
         }
