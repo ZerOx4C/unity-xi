@@ -1,6 +1,5 @@
 using System;
 using R3;
-using R3.Triggers;
 using Runtime.Behaviour;
 using Runtime.Entity;
 using Runtime.UseCase;
@@ -54,7 +53,8 @@ namespace Runtime.Presenter
                 .SubscribeAwait((_, token) => _dicePushing.PerformPushYAsync(devil, token), AwaitOperation.Drop)
                 .AddTo(_disposables);
 
-            behaviour.UpdateAsObservable()
+            Observable.EveryValueChanged(behaviour.transform, t => t.position)
+                .AsUnitObservable()
                 .Subscribe(_ =>
                 {
                     devil.SetDesiredPosition(_transformConverter.ToEntityPosition(behaviour.transform.position));
