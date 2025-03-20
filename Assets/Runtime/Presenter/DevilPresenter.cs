@@ -56,7 +56,7 @@ namespace Runtime.Presenter
             Observable.EveryValueChanged(behaviour.transform, t => t.position)
                 .Skip(1)
                 .Select(_transformConverter.ToEntityPosition)
-                .Subscribe(devil.SetDesiredPosition)
+                .Subscribe(devil.SimulateMove)
                 .AddTo(_disposables);
 
             Observable.EveryUpdate()
