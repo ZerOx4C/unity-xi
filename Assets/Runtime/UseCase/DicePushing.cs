@@ -35,7 +35,7 @@ namespace Runtime.UseCase
 
         private async UniTask PerformAsync(Devil devil, Vector2Int directionScale, CancellationToken cancellation)
         {
-            var direction = Vector2Int.RoundToInt(devil.MoveDirection.CurrentValue) * directionScale;
+            var direction = Vector2Int.RoundToInt(devil.Velocity.CurrentValue.normalized) * directionScale;
             var dicePosition = devil.DiscretePosition.CurrentValue + direction;
 
             if (!_field.TryGetDice(dicePosition, out var dice))

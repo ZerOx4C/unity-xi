@@ -10,24 +10,33 @@ namespace Runtime.Entity
         private const float MovableHeightGap = 0.55f;
         private static readonly Vector3 CellSize = new(1, 1, 0);
         private readonly ReactiveProperty<Vector2> _bumpingTime = new();
-        private readonly ReactiveProperty<Vector2> _faceDirection = new(Vector2.up);
+        private readonly DirectionalMovement _directionalMovement;
         private readonly IFieldReader _fieldReader;
         private readonly ReactiveProperty<float> _height = new(0);
-        private readonly ReactiveProperty<Vector2> _moveDirection = new(Vector2.up);
-        private readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
-        private readonly ReactiveProperty<float> _speed = new(0);
+        private readonly ReactiveProperty<Vector2> _position = new();
         private Bounds _cellBounds = CreateCellBounds(Vector2Int.zero, -float.Epsilon);
-        private Vector2 _desiredDirection = Vector2.up;
-        private float _desiredSpeed;
         private Vector2 _lastPosition;
 
-        public Devil(IFieldReader fieldReader)
+        public Devil(IFieldReader fieldReader, Vector2 initialForward, Vector2 initialPosition)
         {
             _fieldReader = fieldReader;
+            _directionalMovement = new DirectionalMovement(initialForward);
+            _position.Value = initialPosition;
+            UpdateCellBounds(initialPosition);
         }
 
-        public float MaxDirectionSpeed { get; set; }
-        public float MaxAcceleration { get; set; }
+        public float MaxDirectionSpeed
+        {
+            get => _directionalMovement.MaxDirectionSpeed;
+            set => _directionalMovement.MaxDirectionSpeed = value;
+        }
+
+        public float MaxAcceleration
+        {
+            get => _directionalMovement.MaxAcceleration;
+            set => _directionalMovement.MaxAcceleration = value;
+        }
+
         public ReadOnlyReactiveProperty<Vector2> BumpingTime => _bumpingTime;
         public ReadOnlyReactiveProperty<Vector2> Position => _position;
 
@@ -35,46 +44,21 @@ namespace Runtime.Entity
             .Select(Vector2Int.RoundToInt)
             .ToReadOnlyReactiveProperty();
 
-        public ReadOnlyReactiveProperty<Vector2> FaceDirection => _faceDirection;
-        public ReadOnlyReactiveProperty<Vector2> MoveDirection => _moveDirection;
-        public ReadOnlyReactiveProperty<float> Speed => _speed;
-
-        public ReadOnlyReactiveProperty<Vector2> Velocity => _moveDirection
-            .CombineLatest(_speed, (d, s) => (d, s))
-            .Select(v => v.d * v.s)
-            .ToReadOnlyReactiveProperty();
-
+        public ReadOnlyReactiveProperty<Vector2> Forward => _directionalMovement.Forward;
+        public ReadOnlyReactiveProperty<Vector2> Velocity => _directionalMovement.Velocity;
         public ReadOnlyReactiveProperty<float> Height => _height;
 
         public void Dispose()
         {
             _bumpingTime.Dispose();
-            _faceDirection.Dispose();
+            _directionalMovement.Dispose();
             _height.Dispose();
-            _moveDirection.Dispose();
             _position.Dispose();
-            _speed.Dispose();
-        }
-
-        public void SetPositionAndDirection(Vector2 position, Vector2 direction)
-        {
-            direction.Normalize();
-
-            _position.Value = position;
-            _faceDirection.Value = direction;
-            _desiredDirection = direction;
-
-            UpdateCellBounds(position);
         }
 
         public void SetDesiredVelocity(Vector2 velocity)
         {
-            _desiredSpeed = velocity.magnitude;
-
-            if (0 < _desiredSpeed)
-            {
-                _desiredDirection = velocity.normalized;
-            }
+            _directionalMovement.SetDesiredVelocity(velocity);
         }
 
         public void SetDesiredPosition(Vector2 position)
@@ -171,9 +155,7 @@ namespace Runtime.Entity
 
         public void Tick(float deltaTime)
         {
-            _moveDirection.Value = _desiredDirection;
-            UpdateFaceDirection(deltaTime);
-            UpdateSpeed(deltaTime);
+            _directionalMovement.Tick(deltaTime);
             UpdateHeight();
             UpdateBumpingTime(deltaTime);
         }
@@ -191,32 +173,6 @@ namespace Runtime.Entity
         public void ResetBumpingTimeY()
         {
             _bumpingTime.Value *= Vector2.right;
-        }
-
-        private void UpdateFaceDirection(float deltaTime)
-        {
-            var diffAngle = Vector2.SignedAngle(_faceDirection.Value, _desiredDirection);
-            if (Mathf.Approximately(diffAngle, 0))
-            {
-                _faceDirection.Value = _desiredDirection;
-                return;
-            }
-
-            var maxDeltaAngle = MaxDirectionSpeed * deltaTime;
-            var deltaAngle = Mathf.Clamp(diffAngle, -maxDeltaAngle, maxDeltaAngle);
-
-            _faceDirection.Value = Quaternion.Euler(0, 0, deltaAngle) * _faceDirection.Value;
-        }
-
-        private void UpdateSpeed(float deltaTime)
-        {
-            var directionFactor = Mathf.Max(0, Vector2.Dot(_moveDirection.Value, _faceDirection.Value));
-            var diffSpeed = directionFactor * _desiredSpeed - _speed.Value;
-
-            var maxDeltaSpeed = MaxAcceleration * deltaTime;
-            var deltaSpeed = Mathf.Clamp(diffSpeed, -maxDeltaSpeed, maxDeltaSpeed);
-
-            _speed.Value += deltaSpeed;
         }
 
         private void UpdateBumpingTime(float deltaTime)

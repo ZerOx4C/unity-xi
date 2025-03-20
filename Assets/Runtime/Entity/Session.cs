@@ -16,10 +16,9 @@ namespace Runtime.Entity
         {
             Field = new Field(9, 9);
 
-            Player = new Devil(Field);
+            Player = new Devil(Field, Vector2.down, new Vector2(4, 4));
             Player.MaxDirectionSpeed = 720;
             Player.MaxAcceleration = 80;
-            Player.SetPositionAndDirection(new Vector2(4, 4), Vector2.down);
 
             _spawner = new Spawner(Field);
             _vanisher = new Vanisher(Field);

@@ -38,7 +38,7 @@ namespace Runtime.Presenter
                 .Subscribe(behaviour.SetVelocity)
                 .AddTo(_disposables);
 
-            devil.FaceDirection
+            devil.Forward
                 .Select(_transformConverter.ToView)
                 .Subscribe(behaviour.SetDirection)
                 .AddTo(_disposables);
