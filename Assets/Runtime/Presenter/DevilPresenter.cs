@@ -43,14 +43,14 @@ namespace Runtime.Presenter
                 .Subscribe(behaviour.SetDirection)
                 .AddTo(_disposables);
 
-            devil.BumpingTime
-                .Where(v => BumpingThreshold < v.x)
-                .SubscribeAwait((_, token) => _dicePushing.PerformPushXAsync(devil, token), AwaitOperation.Drop)
+            devil.BumpDurationX
+                .Where(v => BumpingThreshold < v)
+                .SubscribeAwait((_, token) => _dicePushing.PerformAsync(devil, devil.BumpDirectionX, token), AwaitOperation.Drop)
                 .AddTo(_disposables);
 
-            devil.BumpingTime
-                .Where(v => BumpingThreshold < v.y)
-                .SubscribeAwait((_, token) => _dicePushing.PerformPushYAsync(devil, token), AwaitOperation.Drop)
+            devil.BumpDurationY
+                .Where(v => BumpingThreshold < v)
+                .SubscribeAwait((_, token) => _dicePushing.PerformAsync(devil, devil.BumpDirectionY, token), AwaitOperation.Drop)
                 .AddTo(_disposables);
 
             Observable.EveryValueChanged(behaviour.transform, t => t.position)

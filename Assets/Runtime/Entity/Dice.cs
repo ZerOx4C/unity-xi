@@ -34,6 +34,10 @@ namespace Runtime.Entity
             _pushMovementType = pushMovementType;
         }
 
+        public ReadOnlyReactiveProperty<bool> CanMove => _spawning
+            .CombineLatest(_vanishing, (s, v) => !s && !v)
+            .ToReadOnlyReactiveProperty();
+
         public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;
         public ReadOnlyReactiveProperty<(int top, int front, int right)> FaceValues => _faceValues;
         public ReadOnlyReactiveProperty<float> Height => _height;

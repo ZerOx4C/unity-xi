@@ -21,21 +21,8 @@ namespace Runtime.UseCase
             _field = field;
         }
 
-        public async UniTask PerformPushXAsync(Devil devil, CancellationToken cancellation)
+        public async UniTask PerformAsync(Devil devil, Vector2Int direction, CancellationToken cancellation)
         {
-            devil.ResetBumpingTimeX();
-            await PerformAsync(devil, Vector2Int.right, cancellation);
-        }
-
-        public async UniTask PerformPushYAsync(Devil devil, CancellationToken cancellation)
-        {
-            devil.ResetBumpingTimeY();
-            await PerformAsync(devil, Vector2Int.up, cancellation);
-        }
-
-        private async UniTask PerformAsync(Devil devil, Vector2Int directionScale, CancellationToken cancellation)
-        {
-            var direction = Vector2Int.RoundToInt(devil.Velocity.CurrentValue.normalized) * directionScale;
             var dicePosition = devil.DiscretePosition.CurrentValue + direction;
 
             if (!_field.TryGetDice(dicePosition, out var dice))

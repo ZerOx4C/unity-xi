@@ -46,18 +46,18 @@ namespace Runtime.Entity
 
             while (0 < remainingDistance)
             {
-                var factor = Mathf.Min(remainingDistance, MaxSimulationDistance);
-                newPosition = Simulate(newPosition, newPosition + factor * direction);
-                remainingDistance -= factor;
+                var distance = Mathf.Min(remainingDistance, MaxSimulationDistance);
+                newPosition = Simulate(newPosition, distance * direction);
+                remainingDistance -= distance;
             }
 
             _position.Value = newPosition;
             UpdateCellBounds(newPosition);
         }
 
-        private Vector2 Simulate(Vector2 from, Vector2 to)
+        private Vector2 Simulate(Vector2 from, Vector2 delta)
         {
-            var delta = to - from;
+            var to = from + delta;
             var discreteFrom = Vector2Int.RoundToInt(from);
             var discreteToX = Vector2Int.RoundToInt(from + delta * Vector2.right);
             var discreteToY = Vector2Int.RoundToInt(from + delta * Vector2.up);
@@ -80,12 +80,12 @@ namespace Runtime.Entity
 
             var discreteTo = Vector2Int.RoundToInt(to);
 
-            if (discreteToX != discreteFrom && _owner.CanMove(discreteToX, discreteTo))
+            if (discreteFrom != discreteToX && _owner.CanMove(discreteToX, discreteTo))
             {
                 return to;
             }
 
-            if (discreteToY != discreteFrom && _owner.CanMove(discreteToY, discreteTo))
+            if (discreteFrom != discreteToY && _owner.CanMove(discreteToY, discreteTo))
             {
                 return to;
             }
