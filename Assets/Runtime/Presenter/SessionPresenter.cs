@@ -5,7 +5,6 @@ using R3;
 using Runtime.Behaviour;
 using Runtime.Controller;
 using Runtime.Entity;
-using Runtime.UseCase;
 using Runtime.Utility;
 using VContainer;
 
@@ -15,7 +14,6 @@ namespace Runtime.Presenter
     {
         private readonly DevilBehaviour _devilBehaviourPrefab;
         private readonly DevilPresenter _devilPresenter;
-        private readonly DicePushing _dicePushing;
         private readonly CompositeDisposable _disposables = new();
         private readonly FieldBehaviour _fieldBehaviourPrefab;
         private readonly FieldPresenter _fieldPresenter;
@@ -29,7 +27,6 @@ namespace Runtime.Presenter
         public SessionPresenter(
             DevilBehaviour devilBehaviourPrefab,
             DevilPresenter devilPresenter,
-            DicePushing dicePushing,
             FieldBehaviour fieldBehaviourPrefab,
             FieldPresenter fieldPresenter,
             PlayerDevilController playerDevilController,
@@ -37,7 +34,6 @@ namespace Runtime.Presenter
         {
             _devilBehaviourPrefab = devilBehaviourPrefab;
             _devilPresenter = devilPresenter;
-            _dicePushing = dicePushing;
             _fieldBehaviourPrefab = fieldBehaviourPrefab;
             _fieldPresenter = fieldPresenter;
             _playerDevilController = playerDevilController;
@@ -64,8 +60,6 @@ namespace Runtime.Presenter
         public void Bind(Session session)
         {
             _disposables.Clear();
-
-            _dicePushing.SetField(session.Field);
 
             _transformConverter.SetFieldSize(session.Field.Width, session.Field.Height);
 

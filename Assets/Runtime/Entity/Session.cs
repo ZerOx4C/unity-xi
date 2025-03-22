@@ -1,5 +1,6 @@
 using System;
 using R3;
+using Runtime.DomainService;
 using UnityEngine;
 using VContainer;
 
@@ -16,7 +17,8 @@ namespace Runtime.Entity
         {
             Field = new Field(9, 9);
 
-            Player = new Devil(Field, Vector2.down, new Vector2(4, 4));
+            var devilPushDiceService = new DevilPushDiceService(Field);
+            Player = new Devil(devilPushDiceService, Field, Vector2.down, new Vector2(4, 4));
             Player.MaxDirectionSpeed = 720;
             Player.MaxAcceleration = 80;
 

@@ -1,24 +1,39 @@
 using System;
 using R3;
+using Runtime.DomainService;
 using UnityEngine;
 
 namespace Runtime.Entity
 {
     public class Devil : ICellBoundedMovementOwner, IMovableAgentReader, IDisposable
     {
+        private const float PushThreshold = 0.1f;
         private const float MovableHeightGap = 0.55f;
         private readonly BumpingTicker _bumpingTicker;
         private readonly CellBoundedMovement _cellBoundedMovement;
         private readonly DirectionalMovement _directionalMovement;
+        private readonly CompositeDisposable _disposables = new();
         private readonly IFieldReader _fieldReader;
         private readonly ReactiveProperty<float> _height = new(0);
 
-        public Devil(IFieldReader fieldReader, Vector2 initialForward, Vector2 initialPosition)
+        public Devil(IDevilPushDiceService pushDiceService, IFieldReader fieldReader, Vector2 initialForward, Vector2 initialPosition)
         {
             _fieldReader = fieldReader;
             _bumpingTicker = new BumpingTicker(this);
             _cellBoundedMovement = new CellBoundedMovement(this, initialPosition);
             _directionalMovement = new DirectionalMovement(initialForward);
+
+            _bumpingTicker.DurationX
+                .Where(v => PushThreshold < v)
+                .Where(v => !_fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
+                .Subscribe(_ => pushDiceService.PushDice(this, _bumpingTicker.DirectionX))
+                .AddTo(_disposables);
+
+            _bumpingTicker.DurationY
+                .Where(v => PushThreshold < v)
+                .Where(v => !_fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
+                .Subscribe(_ => pushDiceService.PushDice(this, _bumpingTicker.DirectionY))
+                .AddTo(_disposables);
         }
 
         public float MaxDirectionSpeed
@@ -64,6 +79,7 @@ namespace Runtime.Entity
             _cellBoundedMovement.Dispose();
             _directionalMovement.Dispose();
             _height.Dispose();
+            _disposables.Dispose();
         }
 
         public ReadOnlyReactiveProperty<Vector2> Position => _cellBoundedMovement.Position;

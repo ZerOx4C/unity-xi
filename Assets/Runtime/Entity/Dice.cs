@@ -35,7 +35,7 @@ namespace Runtime.Entity
         }
 
         public ReadOnlyReactiveProperty<bool> CanMove => _spawning
-            .CombineLatest(_vanishing, (s, v) => !s && !v)
+            .CombineLatest(_vanishing, _movementType, (s, v, t) => !s && !v && t == DiceMovementType.None)
             .ToReadOnlyReactiveProperty();
 
         public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;

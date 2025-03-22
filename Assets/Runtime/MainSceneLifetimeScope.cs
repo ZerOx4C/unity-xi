@@ -3,7 +3,6 @@ using Runtime.Controller;
 using Runtime.Entity;
 using Runtime.Input;
 using Runtime.Presenter;
-using Runtime.UseCase;
 using Runtime.Utility;
 using VContainer;
 using VContainer.Unity;
@@ -44,9 +43,6 @@ namespace Runtime
             builder.Register<GamePresenter>(Lifetime.Singleton);
             builder.Register<SessionPresenter>(Lifetime.Singleton);
             builder.Register<UIPresenter>(Lifetime.Singleton);
-
-            // UseCase
-            builder.Register<DicePushing>(Lifetime.Singleton);
 
             // Utility
             builder.Register<DiceBehaviourProvider>(Lifetime.Singleton);
