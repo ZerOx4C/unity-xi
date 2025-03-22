@@ -6,7 +6,7 @@ namespace Runtime.Entity
 {
     public class CellBoundedMovement : IDisposable
     {
-        private const float CellPadding = 0.05f;
+        private const float CellPadding = 0.01f; // TODO: 適正値の決め方か仕組みの見直しが必要
         private const float MaxSimulationDistance = 0.5f;
         private static readonly Vector3 CellSize = new(1, 1, 0);
         private readonly ICellBoundedMovementOwner _owner;
