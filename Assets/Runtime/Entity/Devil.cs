@@ -74,14 +74,14 @@ namespace Runtime.Entity
             _directionalMovement.SetDesiredVelocity(velocity);
         }
 
-        public void SimulateMove(Vector2 desiredPosition)
-        {
-            _cellBoundedMovement.Simulate(desiredPosition);
-        }
-
         public void Tick(float deltaTime)
         {
             _directionalMovement.Tick(deltaTime);
+
+            var position = _cellBoundedMovement.Position.CurrentValue;
+            var velocity = _directionalMovement.Velocity.CurrentValue;
+            _cellBoundedMovement.Simulate(position + deltaTime * velocity);
+
             _height.Value = _fieldReader.GetHeight(DiscretePosition.CurrentValue);
 
             _bumpingTicker.Tick(deltaTime);

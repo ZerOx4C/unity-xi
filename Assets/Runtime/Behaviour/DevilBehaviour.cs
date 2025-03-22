@@ -11,24 +11,10 @@ namespace Runtime.Behaviour
 
         public Animator animator;
 
-        private Rigidbody _rigidbody;
-
-        private void Awake()
+        public void SetSpeed(float speed)
         {
-            _rigidbody = GetComponent<Rigidbody>();
-        }
-
-        public void SetVelocity(Vector3 velocity)
-        {
-            _rigidbody.linearVelocity = velocity;
-
-            animator.SetBool(ParamRunning, velocity != Vector3.zero);
-            animator.SetFloat(ParamRunAnimationSpeed, velocity.magnitude * RunAnimationSpeedFactor);
-        }
-
-        public void SetDirection(Vector3 direction)
-        {
-            transform.rotation = Quaternion.LookRotation(direction);
+            animator.SetBool(ParamRunning, speed != 0);
+            animator.SetFloat(ParamRunAnimationSpeed, speed * RunAnimationSpeedFactor);
         }
     }
 }

@@ -4,6 +4,7 @@ using Runtime.Behaviour;
 using Runtime.Entity;
 using Runtime.UseCase;
 using Runtime.Utility;
+using UnityEngine;
 using VContainer;
 
 namespace Runtime.Presenter
@@ -33,14 +34,20 @@ namespace Runtime.Presenter
         {
             _disposables.Clear();
 
+            devil.Position.CombineLatest(devil.Height, (p, h) => _transformConverter.ToDevilViewPosition(p, h))
+                .Subscribe(v => behaviour.transform.position = v)
+                .AddTo(_disposables);
+
             devil.Velocity
                 .Select(_transformConverter.ToView)
-                .Subscribe(behaviour.SetVelocity)
+                .Select(Vector3.Magnitude)
+                .Subscribe(behaviour.SetSpeed)
                 .AddTo(_disposables);
 
             devil.Forward
                 .Select(_transformConverter.ToView)
-                .Subscribe(behaviour.SetDirection)
+                .Select(Quaternion.LookRotation)
+                .Subscribe(v => behaviour.transform.rotation = v)
                 .AddTo(_disposables);
 
             devil.BumpDurationX
@@ -51,21 +58,6 @@ namespace Runtime.Presenter
             devil.BumpDurationY
                 .Where(v => BumpingThreshold < v)
                 .SubscribeAwait((_, token) => _dicePushing.PerformAsync(devil, devil.BumpDirectionY, token), AwaitOperation.Drop)
-                .AddTo(_disposables);
-
-            Observable.EveryValueChanged(behaviour.transform, t => t.position)
-                .Skip(1)
-                .Select(_transformConverter.ToEntityPosition)
-                .Subscribe(devil.SimulateMove)
-                .AddTo(_disposables);
-
-            Observable.EveryUpdate()
-                .Subscribe(_ =>
-                {
-                    var position = devil.Position.CurrentValue;
-                    var height = devil.Height.CurrentValue;
-                    behaviour.transform.position = _transformConverter.ToDevilViewPosition(position, height);
-                })
                 .AddTo(_disposables);
         }
     }
