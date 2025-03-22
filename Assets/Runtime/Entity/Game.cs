@@ -18,11 +18,13 @@ namespace Runtime.Entity
 
         public void Dispose()
         {
+            _session.Value?.Dispose();
             _session.Dispose();
         }
 
         public void Reset()
         {
+            _session.Value?.Dispose();
             _session.Value = new Session();
         }
 
