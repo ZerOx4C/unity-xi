@@ -51,10 +51,6 @@ namespace Runtime.Entity
         public ReadOnlyReactiveProperty<Vector2Int> DiscretePosition => _cellBoundedMovement.DiscretePosition;
         public ReadOnlyReactiveProperty<Vector2> Forward => _directionalMovement.Forward;
         public ReadOnlyReactiveProperty<float> Height => _height;
-        public Vector2Int BumpDirectionX => _bumpingTicker.DirectionX;
-        public Vector2Int BumpDirectionY => _bumpingTicker.DirectionY;
-        public ReadOnlyReactiveProperty<float> BumpDurationX => _bumpingTicker.DurationX;
-        public ReadOnlyReactiveProperty<float> BumpDurationY => _bumpingTicker.DurationY;
 
         bool ICellBoundedMovementOwner.CanMove(Vector2Int from, Vector2Int to)
         {
