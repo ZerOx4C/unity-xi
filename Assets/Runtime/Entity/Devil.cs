@@ -8,6 +8,7 @@ namespace Runtime.Entity
     public class Devil : ICellBoundedMovementOwner, IMovableAgentReader, IDisposable
     {
         private const float PushThreshold = 0.1f;
+        private const float DriveThreshold = 0.01f;
         private const float MovableHeightGap = 0.55f;
         private readonly BumpingTicker _bumpingTicker;
         private readonly CellBoundedMovement _cellBoundedMovement;
@@ -16,7 +17,12 @@ namespace Runtime.Entity
         private readonly IFieldReader _fieldReader;
         private readonly ReactiveProperty<float> _height = new(0);
 
-        public Devil(IDevilPushDiceService pushDiceService, IFieldReader fieldReader, Vector2 initialForward, Vector2 initialPosition)
+        public Devil(
+            IDevilPushDiceService pushDiceService,
+            IDevilDriveDiceService driveDiceService,
+            IFieldReader fieldReader,
+            Vector2 initialForward,
+            Vector2 initialPosition)
         {
             _fieldReader = fieldReader;
             _bumpingTicker = new BumpingTicker(this);
@@ -36,6 +42,22 @@ namespace Runtime.Entity
                 .Where(v => !_fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
                 .SubscribeAwait(
                     (_, token) => pushDiceService.PushDiceAsync(this, _bumpingTicker.DirectionY, token),
+                    AwaitOperation.Drop)
+                .AddTo(_disposables);
+
+            _bumpingTicker.DurationX
+                .Where(v => DriveThreshold < v)
+                .Where(v => _fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
+                .SubscribeAwait(
+                    (_, token) => driveDiceService.DriveDiceAsync(this, _bumpingTicker.DirectionX, token),
+                    AwaitOperation.Drop)
+                .AddTo(_disposables);
+
+            _bumpingTicker.DurationY
+                .Where(v => DriveThreshold < v)
+                .Where(v => _fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
+                .SubscribeAwait(
+                    (_, token) => driveDiceService.DriveDiceAsync(this, _bumpingTicker.DirectionY, token),
                     AwaitOperation.Drop)
                 .AddTo(_disposables);
         }

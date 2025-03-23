@@ -20,7 +20,8 @@ namespace Runtime.Entity
             Field = new Field(9, 9);
 
             var devilPushDiceService = new DevilPushDiceService(Field);
-            Player = new Devil(devilPushDiceService, Field, Vector2.down, new Vector2(4, 4));
+            var devilDriveDiceService = new DevilDriveDiceService(Field);
+            Player = new Devil(devilPushDiceService, devilDriveDiceService, Field, Vector2.down, new Vector2(4, 4));
             Player.MaxDirectionSpeed = 720;
             Player.MaxAcceleration = 80;
 
