@@ -1,7 +1,9 @@
 using System;
+using System.ComponentModel;
 using R3;
 using Runtime.Utility;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Random = UnityEngine.Random;
 
 namespace Runtime.Entity
@@ -13,18 +15,16 @@ namespace Runtime.Entity
         private const float VanishDuration = 10f;
         private const float VanishRewindRate = 0.1f;
 
-        private readonly ReactiveProperty<bool> _canOverride = new(true);
+        private readonly DiceMovementType _driveMovementType;
         private readonly ReactiveProperty<(int top, int front, int right)> _faceValues = new((1, 3, 5));
         private readonly ReactiveProperty<float> _height = new(0);
-        private readonly ReactiveProperty<DiceMovementType> _movementType = new(DiceMovementType.None);
-        private readonly ReactiveProperty<Vector2Int> _movingDirection = new(Vector2Int.zero);
         private readonly DiceMovementType _pushMovementType;
-        private readonly ReactiveProperty<bool> _spawning = new(true);
-        private readonly ReactiveProperty<bool> _vanishing = new(false);
-        private float _spawnProgress;
-        private float _vanishProgress;
+        private readonly ReactiveProperty<DiceState> _state = new(DiceState.Spawning);
 
-        public Dice(bool spawnImmediate = false, DiceMovementType pushMovementType = DiceMovementType.Slide)
+        public Dice(
+            bool spawnImmediate = false,
+            DiceMovementType pushMovementType = DiceMovementType.Slide,
+            DiceMovementType driveMovementType = DiceMovementType.Roll)
         {
             if (spawnImmediate)
             {
@@ -32,36 +32,29 @@ namespace Runtime.Entity
             }
 
             _pushMovementType = pushMovementType;
+            _driveMovementType = driveMovementType;
         }
 
-        public ReadOnlyReactiveProperty<bool> CanMove => _spawning
-            .CombineLatest(_vanishing, _movementType, (s, v, t) => !s && !v && t == DiceMovementType.None)
-            .ToReadOnlyReactiveProperty();
-
-        public ReadOnlyReactiveProperty<bool> CanOverride => _canOverride;
+        public Vector2Int MovingDirection { get; private set; }
+        public ReadOnlyReactiveProperty<DiceState> State => _state;
         public ReadOnlyReactiveProperty<(int top, int front, int right)> FaceValues => _faceValues;
-        public ReadOnlyReactiveProperty<float> Height => _height;
-        public ReadOnlyReactiveProperty<DiceMovementType> MovementType => _movementType;
-        public ReadOnlyReactiveProperty<Vector2Int> MovingDirection => _movingDirection;
         public ReactiveProperty<Vector2Int> Position { get; } = new(Vector2Int.zero);
-        public ReadOnlyReactiveProperty<bool> Spawning => _spawning;
+        public ReadOnlyReactiveProperty<float> Height => _height;
+
+        public ReadOnlyReactiveProperty<bool> CanOverride => _height
+            .Select(v => v <= CanOverrideHeight)
+            .ToReadOnlyReactiveProperty();
 
         public ReadOnlyReactiveProperty<int> Value => _faceValues
             .Select(v => v.top)
             .ToReadOnlyReactiveProperty();
 
-        public ReadOnlyReactiveProperty<bool> Vanishing => _vanishing;
-
         public void Dispose()
         {
-            _canOverride.Dispose();
             _faceValues.Dispose();
             _height.Dispose();
-            _movementType.Dispose();
-            _movingDirection.Dispose();
+            _state.Dispose();
             Position.Dispose();
-            _spawning.Dispose();
-            _vanishing.Dispose();
         }
 
         public void Randomize()
@@ -105,107 +98,98 @@ namespace Runtime.Entity
             _faceValues.Value = values;
         }
 
-        public bool TryBeginPush(Vector2Int direction)
+        public bool CanMove(DiceMovementMethod method)
         {
-            AssertUtility.IsValidDirection(direction);
-
-            if (_height.Value < 1)
+            if (_state.Value != DiceState.Idle)
             {
                 return false;
             }
 
-            if (_movementType.Value != DiceMovementType.None)
+            var movementType = method switch
             {
-                Debug.Log("Dice is still moving.");
-                return false;
-            }
+                DiceMovementMethod.Push => _pushMovementType,
+                DiceMovementMethod.Drive => _driveMovementType,
+                _ => throw new InvalidEnumArgumentException(nameof(method), (int)method, typeof(DiceMovementMethod)),
+            };
 
-            if (_pushMovementType == DiceMovementType.None)
+            return movementType switch
             {
-                Debug.Log("Dice cannot be pushed.");
-                return false;
-            }
-
-            _movementType.Value = _pushMovementType;
-            _movingDirection.Value = direction;
-            return true;
+                DiceMovementType.Roll => true,
+                DiceMovementType.Slide => true,
+                _ => false,
+            };
         }
 
-        public void EndPush()
+        public void BeginMove(DiceMovementMethod method, Vector2Int direction)
         {
-            if (_movementType.Value == DiceMovementType.Roll)
+            AssertUtility.IsValidDirection(direction);
+            Assert.IsTrue(CanMove(method));
+
+            var movementType = method switch
             {
-                Roll(_movingDirection.Value);
-            }
+                DiceMovementMethod.Push => _pushMovementType,
+                DiceMovementMethod.Drive => _driveMovementType,
+                _ => throw new InvalidEnumArgumentException(nameof(method), (int)method, typeof(DiceMovementMethod)),
+            };
 
-            Position.Value += _movingDirection.Value;
+            MovingDirection = direction;
+            _state.Value = movementType switch
+            {
+                DiceMovementType.Roll => DiceState.Rolling,
+                DiceMovementType.Slide => DiceState.Sliding,
+                _ => DiceState.Idle,
+            };
+        }
 
-            _movementType.Value = DiceMovementType.None;
-            _movingDirection.Value = Vector2Int.zero;
+        public void EndMove()
+        {
+            MovingDirection = Vector2Int.zero;
+            _state.Value = DiceState.Idle;
         }
 
         public void BeginVanish()
         {
-            _vanishing.Value = true;
+            _state.Value = DiceState.Vanishing;
         }
 
         public void RewindVanish()
         {
-            _vanishProgress = Mathf.Clamp01(_vanishProgress - VanishRewindRate);
+            _height.Value = Mathf.Clamp01(_height.Value - VanishRewindRate);
         }
 
         public void Tick(float deltaTime)
         {
-            UpdateSpawnProgress(deltaTime);
-            UpdateVanishProgress(deltaTime);
-            UpdateHeight();
-
-            _canOverride.Value = _height.Value <= CanOverrideHeight;
+            TickSpawning(deltaTime);
+            TickVanishing(deltaTime);
         }
 
-        private void UpdateSpawnProgress(float deltaTime)
+        private void TickSpawning(float deltaTime)
         {
-            if (!_spawning.Value)
+            if (_state.Value != DiceState.Spawning)
             {
                 return;
             }
 
-            _spawnProgress = Mathf.Clamp01(_spawnProgress + deltaTime / SpawnDuration);
+            _height.Value = Mathf.Clamp01(_height.Value + deltaTime / SpawnDuration);
 
-            if (1 <= _spawnProgress)
+            if (1 <= _height.Value)
             {
-                _spawning.Value = false;
+                _state.Value = DiceState.Idle;
             }
         }
 
-        private void UpdateVanishProgress(float deltaTime)
+        private void TickVanishing(float deltaTime)
         {
-            if (!_vanishing.Value)
+            if (_state.Value != DiceState.Vanishing)
             {
                 return;
             }
 
-            _vanishProgress = Mathf.Clamp01(_vanishProgress + deltaTime / VanishDuration);
+            _height.Value = Mathf.Clamp01(_height.Value - deltaTime / VanishDuration);
 
-            if (1 <= _vanishProgress)
+            if (_height.Value <= 0)
             {
-                // TODO: 完了イベントを発行する
-            }
-        }
-
-        private void UpdateHeight()
-        {
-            if (_spawning.Value)
-            {
-                _height.Value = _spawnProgress;
-            }
-            else if (_vanishing.Value)
-            {
-                _height.Value = 1 - _vanishProgress;
-            }
-            else
-            {
-                _height.Value = 1;
+                _state.Value = DiceState.Vanished;
             }
         }
     }

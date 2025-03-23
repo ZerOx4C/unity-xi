@@ -4,7 +4,6 @@ using R3;
 using Runtime.Behaviour;
 using Runtime.Entity;
 using Runtime.Utility;
-using UnityEngine;
 using UnityEngine.Assertions;
 using VContainer;
 
@@ -50,23 +49,23 @@ namespace Runtime.Presenter
                 .Subscribe(v => behaviour.SetRotation(_transformConverter.ToDiceRotation(v.top, v.front)))
                 .AddTo(disposables);
 
-            dice.MovementType.CombineLatest(dice.MovingDirection, (type, dir) => (type, dir))
-                .Where(v => v.type == DiceMovementType.Slide && v.dir != Vector2.zero)
-                .SubscribeAwait(async (v, token) =>
+            dice.State
+                .Where(v => v == DiceState.Sliding)
+                .SubscribeAwait(async (_, token) =>
                 {
-                    var direction = _transformConverter.ToView(v.dir);
+                    var direction = _transformConverter.ToView(dice.MovingDirection);
                     await behaviour.PerformSlideAsync(direction, token);
-                    dice.EndPush();
+                    dice.EndMove();
                 })
                 .AddTo(disposables);
 
-            dice.MovementType.CombineLatest(dice.MovingDirection, (type, dir) => (type, dir))
-                .Where(v => v.type == DiceMovementType.Roll && v.dir != Vector2.zero)
-                .SubscribeAwait(async (v, token) =>
+            dice.State
+                .Where(v => v == DiceState.Rolling)
+                .SubscribeAwait(async (_, token) =>
                 {
-                    var direction = _transformConverter.ToView(v.dir);
+                    var direction = _transformConverter.ToView(dice.MovingDirection);
                     await behaviour.PerformRollAsync(direction, token);
-                    dice.EndPush();
+                    dice.EndMove();
                 })
                 .AddTo(disposables);
 

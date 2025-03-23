@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using R3;
 using Runtime.DomainService;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace Runtime.Entity
 {
     public class Session : IDisposable
     {
+        private readonly Dictionary<Dice, IDisposable> _diceDisposableTable = new();
         private readonly CompositeDisposable _disposables = new();
         private readonly Spawner _spawner;
         private readonly Vanisher _vanisher;
@@ -48,8 +50,17 @@ namespace Runtime.Entity
                 .Subscribe(_vanisher.Evaluate)
                 .AddTo(_disposables);
 
+            Field.OnDiceRemove
+                .Subscribe(dice =>
+                {
+                    _diceDisposableTable.Remove(dice, out var disposable);
+                    disposable.Dispose();
+                    dice.Dispose();
+                })
+                .AddTo(_disposables);
+
             _spawner.OnSpawn
-                .Subscribe(dice => Field.AddDice(dice))
+                .Subscribe(OnSpawn)
                 .AddTo(_disposables);
 
             _spawner.FillRandomly(0.2f);
@@ -72,6 +83,22 @@ namespace Runtime.Entity
             }
 
             Player.Tick(deltaTime);
+        }
+
+        private void OnSpawn(Vector2Int position)
+        {
+            var dice = new Dice();
+            dice.Randomize();
+
+            var disposables = new CompositeDisposable();
+            _diceDisposableTable.Add(dice, disposables);
+
+            dice.State
+                .Where(v => v == DiceState.Vanished)
+                .Subscribe(_ => Field.RemoveDice(dice))
+                .AddTo(disposables);
+
+            Field.AddDice(dice, position);
         }
     }
 }

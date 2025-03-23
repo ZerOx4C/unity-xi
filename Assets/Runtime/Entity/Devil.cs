@@ -26,13 +26,17 @@ namespace Runtime.Entity
             _bumpingTicker.DurationX
                 .Where(v => PushThreshold < v)
                 .Where(v => !_fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
-                .Subscribe(_ => pushDiceService.PushDice(this, _bumpingTicker.DirectionX))
+                .SubscribeAwait(
+                    (_, token) => pushDiceService.PushDiceAsync(this, _bumpingTicker.DirectionX, token),
+                    AwaitOperation.Drop)
                 .AddTo(_disposables);
 
             _bumpingTicker.DurationY
                 .Where(v => PushThreshold < v)
                 .Where(v => !_fieldReader.TryGetDice(DiscretePosition.CurrentValue, out _))
-                .Subscribe(_ => pushDiceService.PushDice(this, _bumpingTicker.DirectionY))
+                .SubscribeAwait(
+                    (_, token) => pushDiceService.PushDiceAsync(this, _bumpingTicker.DirectionY, token),
+                    AwaitOperation.Drop)
                 .AddTo(_disposables);
         }
 

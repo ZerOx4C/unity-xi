@@ -11,7 +11,7 @@ namespace Runtime.Entity
         private const float SpawnRoughInterval = 10f;
 
         private readonly IFieldReader _fieldReader;
-        private readonly Subject<Dice> _onSpawn = new();
+        private readonly Subject<Vector2Int> _onSpawn = new();
 
         private float _elapsedTime;
 
@@ -20,7 +20,7 @@ namespace Runtime.Entity
             _fieldReader = fieldReader;
         }
 
-        public Observable<Dice> OnSpawn => _onSpawn;
+        public Observable<Vector2Int> OnSpawn => _onSpawn;
 
         public void Dispose()
         {
@@ -64,11 +64,7 @@ namespace Runtime.Entity
             {
                 var position = positions[Random.Range(0, positions.Count)];
                 positions.Remove(position);
-
-                var dice = new Dice();
-                dice.Randomize();
-                dice.Position.Value = position;
-                _onSpawn.OnNext(dice);
+                _onSpawn.OnNext(position);
             }
 
             return ret;

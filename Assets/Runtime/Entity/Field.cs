@@ -9,7 +9,6 @@ namespace Runtime.Entity
     public class Field : IFieldReader, IDisposable
     {
         private readonly RectInt _bounds;
-        private readonly Dictionary<Dice, IDisposable> _diceDisposableTable = new();
         private readonly Dice[] _dices;
         private readonly Vector2Int[] _neighborOffsets = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
         private readonly Subject<Dice> _onDiceAdd = new();
@@ -45,8 +44,8 @@ namespace Runtime.Entity
                 .Select(e => ToPosition(e.index));
 
             var movingPositions = _dices
-                .Where(dice => dice != null && dice.MovingDirection.CurrentValue != Vector2.zero)
-                .Select(dice => dice.Position.CurrentValue + dice.MovingDirection.CurrentValue);
+                .Where(dice => dice != null && dice.MovingDirection != Vector2.zero)
+                .Select(dice => dice.Position.CurrentValue + dice.MovingDirection);
 
             return emptyPositions.Except(movingPositions);
         }
@@ -72,32 +71,20 @@ namespace Runtime.Entity
             return 0;
         }
 
-        public void AddDice(Dice dice)
+        public void AddDice(Dice dice, Vector2Int position)
         {
             if (_dices.Contains(dice))
             {
                 throw new InvalidOperationException("Dice is already added.");
             }
 
-            var index = ToIndex(dice.Position.Value);
+            var index = ToIndex(position);
             if (_dices[index] != null)
             {
                 throw new InvalidOperationException("Position is already used.");
             }
 
-            var disposables = new CompositeDisposable();
-            _diceDisposableTable.Add(dice, disposables);
-
-            dice.Position
-                .Pairwise()
-                .Subscribe(v => OnDicePositionChange(dice, v.Previous, v.Current))
-                .AddTo(disposables);
-
-            dice.Height.CombineLatest(dice.Vanishing, (height, vanishing) => (height, vanishing))
-                .Where(v => v is { height: <= 0, vanishing: true })
-                .Subscribe(_ => RemoveDice(dice))
-                .AddTo(disposables);
-
+            dice.Position.Value = position;
             _dices[index] = dice;
             _onDiceAdd.OnNext(dice);
         }
@@ -110,11 +97,24 @@ namespace Runtime.Entity
                 throw new InvalidOperationException("Dice is not added to this field.");
             }
 
-            _diceDisposableTable.Remove(dice, out var disposables);
-            disposables.Dispose();
-
             _dices[index] = null;
             _onDiceRemove.OnNext(dice);
+        }
+
+        public void MoveDice(Dice dice, Vector2Int position)
+        {
+            var oldIndex = Array.IndexOf(_dices, dice);
+            if (oldIndex < 0)
+            {
+                throw new InvalidOperationException("Dice is not added to this field.");
+            }
+
+            var newIndex = ToIndex(position);
+
+            dice.Position.Value = position;
+            _dices[oldIndex] = null;
+            _dices[newIndex] = dice;
+            _onDiceMove.OnNext(dice);
         }
 
         public void GetNeighborDices(Vector2Int position, out Dice[] dices)
@@ -146,19 +146,6 @@ namespace Runtime.Entity
             }
 
             return new Vector2Int(index % Width, index / Width);
-        }
-
-        private void OnDicePositionChange(Dice dice, Vector2Int oldPosition, Vector2Int newPosition)
-        {
-            var oldDice = _dices[ToIndex(newPosition)];
-            if (oldDice != null)
-            {
-                RemoveDice(oldDice);
-            }
-
-            _dices[ToIndex(newPosition)] = dice;
-            _dices[ToIndex(oldPosition)] = null;
-            _onDiceMove.OnNext(dice);
         }
     }
 }

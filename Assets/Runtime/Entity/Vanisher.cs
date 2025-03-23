@@ -51,7 +51,7 @@ namespace Runtime.Entity
 
             foreach (var dice in matchedDices)
             {
-                if (dice.Vanishing.CurrentValue)
+                if (dice.State.CurrentValue == DiceState.Vanishing)
                 {
                     dice.RewindVanish();
                 }
@@ -67,18 +67,19 @@ namespace Runtime.Entity
         private void EvaluateOne(Dice targetDice)
         {
             _field.GetNeighborDices(targetDice.Position.Value, out var neighborDices);
-            if (!neighborDices.Any(d => d.Vanishing.CurrentValue))
+            if (neighborDices.All(d => d.State.CurrentValue != DiceState.Vanishing))
             {
                 return;
             }
 
-            foreach (var dice in _field.Dices.Where(d => d.Value.CurrentValue == 1))
+            var targetDices = _field.Dices
+                .Where(d => d.State.CurrentValue != DiceState.Vanishing)
+                .Where(d => d.Value.CurrentValue == 1);
+
+            foreach (var dice in targetDices)
             {
-                if (!dice.Vanishing.CurrentValue)
-                {
-                    // TODO: 沈まずに消えるようにする
-                    dice.BeginVanish();
-                }
+                // TODO: 沈まずに消えるようにする
+                dice.BeginVanish();
             }
         }
     }

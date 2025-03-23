@@ -1,3 +1,6 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using R3;
 using Runtime.Entity;
 using UnityEngine;
 using VContainer;
@@ -14,7 +17,7 @@ namespace Runtime.DomainService
             _field = field;
         }
 
-        public void PushDice(Devil devil, Vector2Int direction)
+        public async UniTask PushDiceAsync(Devil devil, Vector2Int direction, CancellationToken cancellation)
         {
             var dicePosition = devil.DiscretePosition.CurrentValue + direction;
             if (!_field.TryGetDice(dicePosition, out var dice))
@@ -22,7 +25,7 @@ namespace Runtime.DomainService
                 return;
             }
 
-            if (!dice.CanMove.CurrentValue)
+            if (!dice.CanMove(DiceMovementMethod.Push))
             {
                 Debug.Log("Dice cannot move.");
                 return;
@@ -42,8 +45,11 @@ namespace Runtime.DomainService
                 return;
             }
 
-            // TODO: Field側でのDice移動はここに書いた方が良いかも
-            dice.TryBeginPush(direction);
+            dice.BeginMove(DiceMovementMethod.Push, direction);
+
+            await dice.State.FirstAsync(v => v == DiceState.Idle, cancellation);
+
+            _field.MoveDice(dice, nextPosition);
         }
     }
 }
