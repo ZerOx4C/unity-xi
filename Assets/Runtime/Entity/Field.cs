@@ -29,6 +29,7 @@ namespace Runtime.Entity
         public void Dispose()
         {
             _onDiceAdd.Dispose();
+            _onDiceMove.Dispose();
             _onDiceRemove.Dispose();
         }
 
